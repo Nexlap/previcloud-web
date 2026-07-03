@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { FirmaBrandHeader } from "@/components/firma/FirmaBrandHeader";
 import { FirmaPageShell, FirmaStatusCard } from "@/components/firma/FirmaStatusCard";
+import { FirmaOtpStep } from "@/components/firma/FirmaOtpStep";
 import { FirmaSlideFlow } from "@/components/firma/FirmaSlideFlow";
 import { SignaturePad } from "@/components/firma/SignaturePad";
 import { formatEuro } from "@/lib/formatEuro";
@@ -19,6 +20,7 @@ type PaginaFirma =
       importoTotale?: number | null;
       titolo?: string | null;
       pdfOriginaleUrl?: string;
+      emailCliente?: string | null;
     }
   | { stato: "gia_firmato"; nomeCliente: string; pdfFirmatoUrl?: string }
   | { stato: "scaduto" | "revocato" | "link_non_valido"; nomeCliente?: string; nomeAzienda?: string }
@@ -42,6 +44,7 @@ export default function FirmaPreventivoPage() {
   const [firma, setFirma] = useState<string | null>(null);
   const [invio, setInvio] = useState(false);
   const [errore, setErrore] = useState("");
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -68,6 +71,7 @@ export default function FirmaPreventivoPage() {
             importoTotale: data.importoTotale,
             titolo: data.titolo,
             pdfOriginaleUrl: data.pdfOriginaleUrl,
+            emailCliente: data.emailCliente ?? data.email_cliente ?? null,
           });
         } else if (data.stato === "gia_firmato") {
           setPagina({
@@ -95,13 +99,20 @@ export default function FirmaPreventivoPage() {
       setErrore("Disegna la firma e spunta la casella di accettazione.");
       return;
     }
+    if (!sessionToken) {
+      setErrore("Completa prima la verifica email.");
+      return;
+    }
     setErrore("");
     setInvio(true);
     try {
       const res = await fetch(`${backendUrl()}/api/public/firma/${token}/accetta`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firma_base64: firma, accettato: true }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionToken}`,
+        },
+        body: JSON.stringify({ firma_base64: firma, accettato: true, session_token: sessionToken }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -190,6 +201,8 @@ export default function FirmaPreventivoPage() {
   }
 
   const importoLabel = formatEuro(pagina.importoTotale);
+  const base = backendUrl();
+  const otpVerificato = !!sessionToken;
 
   return (
     <FirmaPageShell>
@@ -207,61 +220,76 @@ export default function FirmaPreventivoPage() {
           firmaSlide={
             <>
               <p className="text-sm text-[#6B7280]">
-                Scorri le pagine del preventivo, poi firma qui per confermare.
+                {otpVerificato
+                  ? "Identità verificata. Disegna la firma e conferma l'accettazione."
+                  : "Scorri le pagine del preventivo, poi verifica la tua email per firmare."}
               </p>
 
-              <ol className="mt-5 space-y-5">
-                <li>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
-                    1 · Firma
+              {!otpVerificato ? (
+                <div className="mt-5">
+                  <FirmaOtpStep
+                    token={token}
+                    backendUrl={base}
+                    emailCliente={pagina.emailCliente}
+                    onVerified={setSessionToken}
+                  />
+                </div>
+              ) : (
+                <>
+                  <ol className="mt-5 space-y-5">
+                    <li>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+                        1 · Firma
+                      </p>
+                      <SignaturePad onChange={setFirma} />
+                    </li>
+
+                    <li>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
+                        2 · Accettazione
+                      </p>
+                      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-3 transition hover:border-[#0E9F8E]/40">
+                        <input
+                          type="checkbox"
+                          checked={accettato}
+                          onChange={(e) => setAccettato(e.target.checked)}
+                          className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#D1D5DB] text-[#0E9F8E] focus:ring-[#0E9F8E]"
+                        />
+                        <span className="text-sm leading-snug text-[#374151]">
+                          Accetto il preventivo e le condizioni indicate nell&apos;anteprima.
+                        </span>
+                      </label>
+                    </li>
+                  </ol>
+
+                  {errore ? (
+                    <p className="mt-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+                      {errore}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    disabled={invio}
+                    onClick={() => void conferma()}
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0E9F8E] py-3.5 text-sm font-semibold text-white transition hover:bg-[#0c8a7c] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {invio ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                        Invio in corso…
+                      </>
+                    ) : (
+                      "Conferma e invia"
+                    )}
+                  </button>
+
+                  <p className="mt-4 text-center text-[11px] leading-relaxed text-[#9CA3AF]">
+                    La firma viene registrata in modo sicuro e l&apos;artigiano riceverà una
+                    notifica.
                   </p>
-                  <SignaturePad onChange={setFirma} />
-                </li>
-
-                <li>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#9CA3AF]">
-                    2 · Accettazione
-                  </p>
-                  <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-3 transition hover:border-[#0E9F8E]/40">
-                    <input
-                      type="checkbox"
-                      checked={accettato}
-                      onChange={(e) => setAccettato(e.target.checked)}
-                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#D1D5DB] text-[#0E9F8E] focus:ring-[#0E9F8E]"
-                    />
-                    <span className="text-sm leading-snug text-[#374151]">
-                      Accetto il preventivo e le condizioni indicate nell&apos;anteprima.
-                    </span>
-                  </label>
-                </li>
-              </ol>
-
-              {errore ? (
-                <p className="mt-4 rounded-xl border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
-                  {errore}
-                </p>
-              ) : null}
-
-              <button
-                type="button"
-                disabled={invio}
-                onClick={() => void conferma()}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0E9F8E] py-3.5 text-sm font-semibold text-white transition hover:bg-[#0c8a7c] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {invio ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                    Invio in corso…
-                  </>
-                ) : (
-                  "Conferma e invia"
-                )}
-              </button>
-
-              <p className="mt-4 text-center text-[11px] leading-relaxed text-[#9CA3AF]">
-                La firma viene registrata in modo sicuro e l&apos;artigiano riceverà una
-                notifica.
-              </p>
+                </>
+              )}
             </>
           }
         />
