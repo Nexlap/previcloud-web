@@ -171,7 +171,7 @@ async function inviaEmailDownload(
   }
 
   const { error } = await resend.emails.send({
-    from: 'PreviCloud <onboarding@resend.dev>',
+    from: 'PreviCloud <noreply@previcloud.it>',
     to: emailCliente,
     subject: `Il tuo acquisto è pronto — ${titolo}`,
     html: buildDownloadEmailHtml(titolo, linkDownload),
@@ -193,7 +193,7 @@ async function inviaEmailProdottoVenduto(
   if (!resend) return
   try {
     await resend.emails.send({
-      from: 'PreviCloud <onboarding@resend.dev>',
+      from: 'PreviCloud <noreply@previcloud.it>',
       to: emailArtigiano,
       subject: `Prodotto venduto — ${titoloProdotto}`,
       html: `
