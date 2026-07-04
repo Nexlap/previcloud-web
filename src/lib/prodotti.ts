@@ -27,15 +27,6 @@ export interface ProdottoPubblico {
   attivo: boolean
 }
 
-export interface AcquistoProdotto {
-  id: string
-  prodotto_id: string
-  email_cliente: string
-  stripe_session_id: string
-  pagato: boolean
-  created_at: string
-}
-
 export interface CreaProdottoInput {
   user_id: string
   titolo: string
@@ -208,73 +199,6 @@ export async function eliminaProdotto(id: string): Promise<void> {
     .eq('id', id)
 
   if (error) throw error
-}
-
-// unused
-export async function creaAcquisto(
-  prodottoId: string,
-  emailCliente: string,
-  sessionId: string
-): Promise<AcquistoProdotto> {
-  const { data, error } = await supabase
-    .from('acquisti_prodotti')
-    .insert({
-      prodotto_id: prodottoId,
-      email_cliente: emailCliente,
-      stripe_session_id: sessionId,
-      pagato: false,
-    })
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as AcquistoProdotto
-}
-
-// unused
-export async function confermaAcquisto(
-  sessionId: string
-): Promise<string | null> {
-  const { data: acquisto, error: acquistoError } = await supabase
-    .from('acquisti_prodotti')
-    .select('id, prodotto_id, pagato')
-    .eq('stripe_session_id', sessionId)
-    .maybeSingle()
-
-  if (acquistoError) throw acquistoError
-  if (!acquisto) return null
-
-  if (!acquisto.pagato) {
-    const { error: updateError } = await supabase
-      .from('acquisti_prodotti')
-      .update({ pagato: true })
-      .eq('stripe_session_id', sessionId)
-
-    if (updateError) throw updateError
-  }
-
-  const { data: prodotto, error: prodottoError } = await supabase
-    .from('prodotti_digitali')
-    .select('link_download')
-    .eq('id', acquisto.prodotto_id)
-    .single()
-
-  if (prodottoError) throw prodottoError
-  return prodotto.link_download as string
-}
-
-// unused
-export async function getAcquistiProdotto(
-  prodottoId: string
-): Promise<AcquistoProdotto[]> {
-  const { data, error } = await supabase
-    .from('acquisti_prodotti')
-    .select('*')
-    .eq('prodotto_id', prodottoId)
-    .order('created_at', { ascending: false })
-
-  if (error) throw error
-  return (data ?? []) as AcquistoProdotto[]
 }
 
 export async function getStatisticheProdotti(
