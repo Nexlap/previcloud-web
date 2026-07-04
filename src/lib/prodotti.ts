@@ -120,12 +120,26 @@ export async function getProdottiUtente(
   return (data ?? []) as ProdottoDigitale[]
 }
 
+/** Catalogo pubblico (browser, anon key) — view DB senza link_download. */
+export async function getProdottoPubblicoBySlug(
+  slug: string
+): Promise<ProdottoPubblico | null> {
+  const { data, error } = await supabase
+    .from('prodotti_digitali_pubblici')
+    .select(CAMPI_PUBBLICI)
+    .eq('slug', slug)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as ProdottoPubblico | null
+}
+
+/** Lookup prodotto lato server (service role) — tabella grezza. */
 export async function getProdottoBySlug(
   slug: string,
-  client?: SupabaseClient
+  client: SupabaseClient
 ): Promise<ProdottoPubblico | null> {
-  const db = client ?? supabase
-  const { data, error } = await db
+  const { data, error } = await client
     .from('prodotti_digitali')
     .select(CAMPI_PUBBLICI)
     .eq('slug', slug)

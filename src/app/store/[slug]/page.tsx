@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import {
-  getProdottoBySlug,
+  getProdottoPubblicoBySlug,
   normalizzaLinkPreviewMultipli,
   type ProdottoPubblico,
 } from '@/lib/prodotti'
@@ -21,7 +21,7 @@ export default function StorePage() {
   const [errore, setErrore] = useState('')
 
   useEffect(() => {
-    getProdottoBySlug(slug)
+    getProdottoPubblicoBySlug(slug)
       .then((p) => setProdotto(p))
       .catch(console.error)
       .finally(() => setLoading(false))
