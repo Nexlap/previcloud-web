@@ -16,21 +16,12 @@ export const metadata: Metadata = {
     description:
       "Crea preventivi professionali con l'AI, falli firmare online e incassa con Stripe. Beta privata gratuita per artigiani italiani.",
     locale: "it_IT",
-    images: [
-      {
-        url: `${SITE_URL}/previcloud-logo.jpg`,
-        width: 512,
-        height: 512,
-        alt: "PreviCloud",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "PreviCloud — Preventivi con AI, firma digitale e pagamenti",
     description:
       "Il SaaS italiano per artigiani: preventivi con AI, firma digitale e incassi con Stripe. Beta privata gratuita.",
-    images: [`${SITE_URL}/previcloud-logo.jpg`],
   },
 };
 
