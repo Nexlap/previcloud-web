@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { formatNumeroIT } from "@/lib/formatNumeroIT";
 import {
   Smartphone,
   Laptop,
@@ -22,11 +23,11 @@ export default function InteractiveShowcase({ onOpenBeta }: { onOpenBeta: () => 
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop">("mobile");
   const [activeTab, setActiveTab] = useState<"dashboard" | "fisco" | "pdf" | "clienti">("dashboard");
 
-  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200);
+  const [windowWidth, setWindowWidth] = useState(1200);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const handleResize = () => setWindowWidth(window.innerWidth);
+    setWindowWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -409,37 +410,37 @@ export default function InteractiveShowcase({ onOpenBeta }: { onOpenBeta: () => 
 
                           <div className="flex justify-between pb-1 border-b border-slate-100">
                             <span className="text-slate-500 font-medium">Fatturato lordo:</span>
-                            <span className="font-bold text-slate-900">€{calcValues.lordo.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span className="font-bold text-slate-900">€{formatNumeroIT(calcValues.lordo)}</span>
                           </div>
 
                           <div className="flex justify-between text-[11px] text-emerald-600">
                             <span className="font-medium">+ Rivalsa INPS (4%):</span>
-                            <span className="font-semibold">+€{calcValues.rivalsa.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span className="font-semibold">+€{formatNumeroIT(calcValues.rivalsa)}</span>
                           </div>
 
                           <div className="flex justify-between py-1.5 border-y border-slate-100 font-extrabold text-slate-950 text-[13px]">
                             <span>= Totale fatturato cliente:</span>
-                            <span>€{calcValues.totaleFattura.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>€{formatNumeroIT(calcValues.totaleFattura)}</span>
                           </div>
 
                           <div className="flex justify-between text-[11px] text-slate-600">
                             <span className="font-medium">Reddito imponibile (78%):</span>
-                            <span>€{calcValues.imponibile.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>€{formatNumeroIT(calcValues.imponibile)}</span>
                           </div>
 
                           <div className="flex justify-between text-[11px] text-rose-600">
                             <span className="font-medium">- Contributi INPS:</span>
-                            <span>-€{calcValues.contributi.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>-€{formatNumeroIT(calcValues.contributi)}</span>
                           </div>
 
                           <div className="flex justify-between text-[11px] text-rose-600">
                             <span className="font-medium">- Imposta sostitutiva (5%):</span>
-                            <span>-€{calcValues.imposta.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>-€{formatNumeroIT(calcValues.imposta)}</span>
                           </div>
 
                           <div className="flex justify-between pt-2 border-t border-slate-200 font-black text-teal-brand text-sm">
                             <span>Netto stimato:</span>
-                            <span>€{calcValues.netto.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>€{formatNumeroIT(calcValues.netto)}</span>
                           </div>
                         </div>
 
@@ -774,31 +775,31 @@ export default function InteractiveShowcase({ onOpenBeta }: { onOpenBeta: () => 
 
                           <div className="flex justify-between">
                             <span className="text-slate-500">Fatturato lordo:</span>
-                            <span className="font-bold">€{calcValues.lordo.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span className="font-bold">€{formatNumeroIT(calcValues.lordo)}</span>
                           </div>
                           <div className="flex justify-between text-emerald-600 text-[8.5px]">
                             <span>+ Rivalsa INPS (4%):</span>
-                            <span>+€{calcValues.rivalsa.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>+€{formatNumeroIT(calcValues.rivalsa)}</span>
                           </div>
                           <div className="flex justify-between font-black text-slate-950 py-1 border-y border-slate-100">
                             <span>Totale fattura:</span>
-                            <span>€{calcValues.totaleFattura.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>€{formatNumeroIT(calcValues.totaleFattura)}</span>
                           </div>
                           <div className="flex justify-between text-slate-500">
                             <span>Reddito imponibile (78%):</span>
-                            <span>€{calcValues.imponibile.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>€{formatNumeroIT(calcValues.imponibile)}</span>
                           </div>
                           <div className="flex justify-between text-rose-600">
                             <span>- Contributi INPS:</span>
-                            <span>-€{calcValues.contributi.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>-€{formatNumeroIT(calcValues.contributi)}</span>
                           </div>
                           <div className="flex justify-between text-rose-600">
                             <span>- Imposta sostitutiva (5%):</span>
-                            <span>-€{calcValues.imposta.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>-€{formatNumeroIT(calcValues.imposta)}</span>
                           </div>
                           <div className="flex justify-between font-black text-teal-brand pt-1.5 border-t border-slate-100 text-xs">
                             <span>Netto Stimato:</span>
-                            <span>€{calcValues.netto.toLocaleString("it-IT", { minimumFractionDigits: 2 })}</span>
+                            <span>€{formatNumeroIT(calcValues.netto)}</span>
                           </div>
                         </div>
 

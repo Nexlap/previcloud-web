@@ -68,8 +68,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${jakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {/* Termly CMP — primo script in pagina per Auto Blocker e banner consenso */}
-        <Script src={TERMLY_SCRIPT_SRC} strategy="beforeInteractive" />
+        <Script src={TERMLY_SCRIPT_SRC} strategy="afterInteractive" />
         {children}
         <Suspense fallback={null}>
           <TermlyInit />
