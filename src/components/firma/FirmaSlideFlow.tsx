@@ -280,13 +280,7 @@ export function FirmaSlideFlow({ html, firmaSlide }: Props) {
     return () => scroller.removeEventListener("scroll", onScroll);
   }, [totalSlides]);
 
-  const frameVisibile =
-    frame.larghezza > 0 && frame.altezza > 0
-      ? frame
-      : typeof window !== "undefined"
-        ? dimensioniFallback()
-        : FRAME_VUOTO;
-  const { larghezza, altezza, scale } = frameVisibile;
+  const { larghezza, altezza, scale } = frame;
 
   function apriPreviewFullscreen() {
     if (isFirmaSlide) return;

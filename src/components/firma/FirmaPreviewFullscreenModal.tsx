@@ -428,12 +428,7 @@ export function FirmaPreviewFullscreenModal({
 
   if (!open) return null;
 
-  const { larghezza, altezza, scale: fitScale } =
-    frame.larghezza > 0 && frame.altezza > 0
-      ? frame
-      : typeof window !== "undefined"
-        ? dimensioniPaginaPreview(window.innerWidth, window.innerHeight * 0.65)
-        : FRAME_VUOTO;
+  const { larghezza, altezza, scale: fitScale } = frame;
 
   const atFit = view.scale <= 1.01;
 

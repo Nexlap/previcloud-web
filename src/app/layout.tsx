@@ -67,8 +67,8 @@ export default function RootLayout({
       lang="it"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${jakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <Script src={TERMLY_SCRIPT_SRC} strategy="beforeInteractive" />
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <Script src={TERMLY_SCRIPT_SRC} strategy="afterInteractive" />
         {children}
         <Suspense fallback={null}>
           <TermlyInit />
