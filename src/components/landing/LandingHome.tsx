@@ -40,52 +40,63 @@ export default function LandingHome() {
       {/* Background Dots Grid decoration */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.035] z-0" style={{ backgroundImage: "radial-gradient(#0E9F8E 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
 
-      {/* Header Banner for Beta */}
-      <div className="relative z-50 bg-[#0B7A6D] text-white py-2 px-4 text-center text-xs font-semibold tracking-wide">
-        🚀 PreviCloud è in Beta Privata • <button onClick={() => openBetaWithProfession("altro")} className="underline hover:text-teal-100 font-bold cursor-pointer">Iscriviti ora</button> — posti limitati fino a 20 beta tester.
-      </div>
+      {/* HERO SHELL — banner + nav + hero occupano l'intera altezza dello schermo */}
+      <div className="relative flex min-h-svh flex-col overflow-hidden">
 
-      {/* Navigation */}
-      <header className="relative z-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 cursor-pointer select-none group">
-          <Image
-            src="/previcloud-logo.jpg"
-            alt="PreviCloud Logo"
-            width={36}
-            height={36}
-            className="w-9 h-9 rounded-xl shadow-lg shadow-teal-brand/20 object-cover transition-transform group-hover:scale-105"
-          />
-          <span className="text-2xl font-extrabold tracking-tight text-slate-900">
-            Previ<span className="text-teal-brand">Cloud</span>
-          </span>
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
-          <a href="#problema" className="hover:text-teal-brand transition-colors">Il problema</a>
-          <a href="#funzionalita" className="hover:text-teal-brand transition-colors">Funzionalità</a>
-          <a href="#piattaforme" className="hover:text-teal-brand transition-colors">Dispositivi</a>
-          <Link href="/faq" className="hover:text-teal-brand transition-colors">Domande Frequenti</Link>
-        </nav>
-
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link
-            href="/login"
-            className="px-4 py-2.5 text-slate-700 hover:text-teal-brand rounded-full font-bold text-sm transition-colors cursor-pointer"
-          >
-            Accedi
-          </Link>
-          <button
-            onClick={() => openBetaWithProfession("")}
-            className="px-5 py-2.5 bg-teal-brand hover:bg-teal-dark text-white rounded-full font-bold text-sm shadow-md shadow-teal-brand/10 hover:shadow-lg transition-all cursor-pointer"
-          >
-            Iscriviti alla Beta
-          </button>
+        {/* Sfondo ambientale */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-40 -right-32 h-[560px] w-[560px] rounded-full bg-teal-brand/10 blur-3xl" />
+          <div className="absolute top-1/3 -left-40 h-[460px] w-[460px] rounded-full bg-teal-dark/[0.06] blur-3xl" />
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#FAFAF9]" />
         </div>
-      </header>
 
-      {/* HERO SECTION */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 md:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        {/* Header Banner for Beta */}
+        <div className="relative z-50 bg-[#0B7A6D] text-white py-2 px-4 text-center text-xs font-semibold tracking-wide">
+          🚀 PreviCloud è in Beta Privata • <button onClick={() => openBetaWithProfession("altro")} className="underline hover:text-teal-100 font-bold cursor-pointer">Iscriviti ora</button> — posti limitati fino a 20 beta tester.
+        </div>
+
+        {/* Navigation */}
+        <header className="relative z-40 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 cursor-pointer select-none group">
+            <Image
+              src="/previcloud-logo.jpg"
+              alt="PreviCloud Logo"
+              width={36}
+              height={36}
+              className="w-9 h-9 rounded-xl shadow-lg shadow-teal-brand/20 object-cover transition-transform group-hover:scale-105"
+            />
+            <span className="text-2xl font-extrabold tracking-tight text-slate-900">
+              Previ<span className="text-teal-brand">Cloud</span>
+            </span>
+          </Link>
+
+          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+            <a href="#problema" className="hover:text-teal-brand transition-colors">Il problema</a>
+            <a href="#funzionalita" className="hover:text-teal-brand transition-colors">Funzionalità</a>
+            <a href="#piattaforme" className="hover:text-teal-brand transition-colors">Dispositivi</a>
+            <Link href="/faq" className="hover:text-teal-brand transition-colors">Domande Frequenti</Link>
+          </nav>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/login"
+              className="px-4 py-2.5 text-slate-700 hover:text-teal-brand rounded-full font-bold text-sm transition-colors cursor-pointer"
+            >
+              Accedi
+            </Link>
+            <button
+              onClick={() => openBetaWithProfession("")}
+              className="px-5 py-2.5 bg-teal-brand hover:bg-teal-dark text-white rounded-full font-bold text-sm shadow-md shadow-teal-brand/10 hover:shadow-lg transition-all cursor-pointer"
+            >
+              Iscriviti alla Beta
+            </button>
+          </div>
+        </header>
+
+        {/* HERO SECTION */}
+        <section className="relative z-10 flex flex-1 items-center">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
 
           {/* Hero Content Left */}
           <div className="lg:col-span-7 flex flex-col gap-6 text-left">
@@ -95,7 +106,7 @@ export default function LandingHome() {
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.08] tracking-tight text-slate-900">
-              Dallo smartphone al PDF professionale in <span className="text-teal-brand relative inline-block">2 minuti<span className="absolute left-0 bottom-1 w-full h-2 bg-teal-brand/15 -z-10 rounded-full" /></span>.
+              Dallo smartphone al PDF professionale in <span className="text-teal-brand relative inline-block">2 minuti<span className="absolute left-0 bottom-1 w-full h-2 bg-teal-brand/15 -z-10 rounded-full" /></span>
             </h1>
 
             <p className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl">
@@ -212,8 +223,20 @@ export default function LandingHome() {
             </div>
           </div>
 
-        </div>
-      </section>
+            </div>
+          </div>
+
+          {/* Scroll cue verso la sezione successiva */}
+          <a
+            href="#problema"
+            aria-label="Scopri di più"
+            className="group absolute inset-x-0 bottom-5 z-20 mx-auto hidden w-fit flex-col items-center gap-1 text-slate-400 transition-colors hover:text-teal-brand sm:flex"
+          >
+            <span className="text-[11px] font-semibold uppercase tracking-widest">Scopri di più</span>
+            <ChevronDown className="h-4 w-4 animate-bounce" />
+          </a>
+        </section>
+      </div>
 
       {/* PAIN & SOLUTION COMPARISON ("IL PROBLEMA") */}
       <section id="problema" className="py-20 bg-white border-y border-slate-100">
