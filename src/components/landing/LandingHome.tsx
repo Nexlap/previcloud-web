@@ -608,6 +608,8 @@ export default function LandingHome() {
               <Link href="/privacy" className="hover:text-white transition-colors font-bold text-slate-400">Privacy Policy</Link>
               <span>•</span>
               <Link href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link>
+              <span>•</span>
+              <a href="#" className="termly-display-preferences hover:text-white transition-colors">Preferenze Cookie</a>
             </div>
 
             <div className="flex items-center gap-2">
