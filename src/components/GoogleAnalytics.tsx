@@ -4,78 +4,37 @@ import { useEffect } from 'react'
 
 const POLL_INTERVAL_MS = 500
 const POLL_MAX_MS = 15_000
+const TERMLY_CACHE_KEY = 'TERMLY_API_CACHE'
 
-/**
- * Cookie Termly che memorizza le policy/categorie accettate dall'utente.
- * Nome reale: `_tltpl` + suffisso (es. `_tltpl520c2b0c...`); vedi cookie policy Termly.
- */
-const TERMLY_POLICY_COOKIE_PREFIX = '_tltpl'
-
-type TermlyConsentState = {
-  analytics?: boolean
-}
-
-type TermlyWithConsent = {
-  getConsentState?: () => TermlyConsentState | undefined
+type TermlyApiCache = {
+  TERMLY_COOKIE_CONSENT?: {
+    value?: {
+      analytics?: boolean
+    }
+  }
 }
 
 let gaInjected = false
 
-function getTermlyConsentApi(): TermlyWithConsent | undefined {
-  return (window as Window & { Termly?: TermlyWithConsent }).Termly
-}
-
-function parsePolicyCookieValue(value: string): boolean | null {
-  if (/\banalytics\b/i.test(value)) return true
-
-  try {
-    const parsed = JSON.parse(value) as unknown
-    if (Array.isArray(parsed)) {
-      return parsed.includes('analytics')
-    }
-    if (parsed && typeof parsed === 'object') {
-      const record = parsed as Record<string, unknown>
-      if (typeof record.analytics === 'boolean') return record.analytics
-      if (Array.isArray(record.categories)) {
-        return record.categories.includes('analytics')
-      }
-    }
-  } catch {
-    /* valore non-JSON */
-  }
-
-  return null
-}
-
 /**
  * Ritorna:
- * - `true` / `false` se il consenso analytics è determinato
- * - `null` se Termly non ha ancora scritto cookie né esposto getConsentState
+ * - `true` se analytics è stato accettato
+ * - `false` se analytics è stato rifiutato esplicitamente
+ * - `null` se Termly non ha ancora scritto il consenso in localStorage
  */
-function hasTermlyAnalyticsConsent(): boolean | null {
-  const apiState = getTermlyConsentApi()?.getConsentState?.()
-  if (apiState !== undefined && typeof apiState.analytics === 'boolean') {
-    return apiState.analytics
+function getTermlyAnalyticsConsent(): boolean | null {
+  try {
+    const raw = localStorage.getItem(TERMLY_CACHE_KEY)
+    if (!raw) return null
+
+    const cache = JSON.parse(raw) as TermlyApiCache
+    const analytics = cache?.TERMLY_COOKIE_CONSENT?.value?.analytics
+
+    if (typeof analytics !== 'boolean') return null
+    return analytics
+  } catch {
+    return null
   }
-
-  let foundPolicyCookie = false
-  for (const entry of document.cookie.split(';')) {
-    const trimmed = entry.trim()
-    const eq = trimmed.indexOf('=')
-    if (eq === -1) continue
-
-    const name = trimmed.slice(0, eq)
-    if (!name.startsWith(TERMLY_POLICY_COOKIE_PREFIX)) continue
-
-    foundPolicyCookie = true
-    const value = decodeURIComponent(trimmed.slice(eq + 1))
-    const parsed = parsePolicyCookieValue(value)
-    if (parsed !== null) return parsed
-  }
-
-  if (foundPolicyCookie) return false
-
-  return null
 }
 
 function injectGoogleAnalytics(measurementId: string): void {
@@ -114,7 +73,7 @@ export default function GoogleAnalytics() {
     const tryInject = (): boolean => {
       if (gaInjected) return true
 
-      const consent = hasTermlyAnalyticsConsent()
+      const consent = getTermlyAnalyticsConsent()
       if (consent === null) return false
       if (consent) injectGoogleAnalytics(measurementId)
       return true
