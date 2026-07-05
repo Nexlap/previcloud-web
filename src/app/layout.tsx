@@ -7,6 +7,7 @@ import TermlyInit from "@/components/TermlyInit";
 
 const TERMLY_WEBSITE_UUID = "520c2b0c-0f03-4ed3-a2e6-09768566ac2e";
 const TERMLY_SCRIPT_SRC = `https://app.termly.io/resource-blocker/${TERMLY_WEBSITE_UUID}?autoBlock=on`;
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -69,6 +70,28 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {/* Termly CMP — primo script in pagina per Auto Blocker e banner consenso */}
         <Script src={TERMLY_SCRIPT_SRC} strategy="beforeInteractive" />
+        {GA_MEASUREMENT_ID && (
+          <>
+            <script
+              type="text/plain"
+              data-categories="analytics"
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              async
+            />
+            <script
+              type="text/plain"
+              data-categories="analytics"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${GA_MEASUREMENT_ID}');
+                `,
+              }}
+            />
+          </>
+        )}
         {children}
         <Suspense fallback={null}>
           <TermlyInit />
