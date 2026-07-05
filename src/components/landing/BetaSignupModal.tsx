@@ -522,23 +522,22 @@ export default function BetaSignupModal({
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-teal-50 text-teal-brand">
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900">Iscrizione completata con successo!</h3>
+                <h3 className="text-xl font-bold text-slate-900">Richiesta presa in carico!</h3>
                 <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-                  Grazie, <strong className="text-slate-800">{name}</strong>! Ti ricontatteremo su WhatsApp entro pochi giorni per attivare il tuo accesso alla beta.
+                  Grazie, <strong className="text-slate-800">{name}</strong>! La tua richiesta è stata presa in carico. Ti ricontatteremo a breve per creare i tuoi dati di accesso e te li comunicheremo via WhatsApp.
                 </p>
                 <div className="mt-5 rounded-xl bg-slate-50 p-4 text-left text-xs text-slate-500 space-y-2.5 border border-slate-100">
-                  <p className="font-bold text-slate-700">I tuoi vantaggi da Beta Tester:</p>
                   <p className="flex items-center gap-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-teal-brand" />
-                    Accesso illimitato totalmente gratuito durante la beta.
+                    Ti abbiamo inviato un&apos;email di conferma a <strong className="text-slate-700">{email}</strong>.
                   </p>
                   <p className="flex items-center gap-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-teal-brand" />
-                    Supporto diretto con gli sviluppatori per i tuoi listini.
+                    Prepareremo il tuo accesso manualmente e ti scriveremo su WhatsApp.
                   </p>
                   <p className="flex items-center gap-2">
                     <span className="h-1.5 w-1.5 rounded-full bg-teal-brand" />
-                    Sconto a vita garantito sul futuro piano a pagamento.
+                    Nessuna carta richiesta: la beta è totalmente gratuita.
                   </p>
                 </div>
                 <button
