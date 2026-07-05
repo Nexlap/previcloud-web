@@ -120,58 +120,59 @@ export default function ModificaProdottoPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F8FA] flex items-center justify-center">
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-[#0E9F8E] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA]">
-      <header className="bg-[#0D1B2A] px-6 py-4 flex items-center gap-4">
+    <div className="min-h-screen bg-brand-bg">
+      <header className="bg-brand-navy px-4 sm:px-6 py-4 flex items-center gap-3">
         <button
           onClick={() => (window.location.href = '/dashboard/prodotti')}
-          className="text-gray-400 hover:text-white transition-colors"
+          className="w-9 h-9 -ml-1.5 flex items-center justify-center text-gray-400 hover:text-white transition-colors shrink-0"
+          aria-label="Torna ai prodotti"
         >
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-base font-semibold text-white tracking-tight">
-          Previ<span className="text-[#2DD4BF]">Cloud</span>
+          Previ<span className="text-brand-teal-light">Cloud</span>
           <span className="text-gray-400 font-normal ml-2">— Modifica prodotto</span>
         </h1>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8">
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-4">
-          <h2 className="text-base font-semibold text-[#0D1B2A] mb-5">
+        <div className="bg-white border border-brand-border rounded-card-lg p-6 shadow-card mb-4">
+          <h2 className="text-base font-semibold text-brand-navy mb-5">
             Dettagli prodotto
           </h2>
 
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+            <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1.5">
               Titolo *
             </label>
             <input
               value={form.titolo}
               onChange={(e) => set('titolo', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-[#F7F8FA] focus:bg-white focus:border-[#0E9F8E] outline-none"
+              className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-sm bg-brand-bg focus:bg-white focus:border-brand-teal outline-none transition-colors"
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+            <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1.5">
               Descrizione
             </label>
             <textarea
               value={form.descrizione}
               onChange={(e) => set('descrizione', e.target.value)}
               rows={4}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-[#F7F8FA] focus:bg-white focus:border-[#0E9F8E] outline-none resize-none leading-relaxed"
+              className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-sm bg-brand-bg focus:bg-white focus:border-brand-teal outline-none transition-colors resize-none leading-relaxed"
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+            <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1.5">
               Prezzo (€) *
             </label>
             <input
@@ -180,12 +181,12 @@ export default function ModificaProdottoPage() {
               step="0.01"
               value={form.prezzo}
               onChange={(e) => set('prezzo', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-[#F7F8FA] focus:bg-white focus:border-[#0E9F8E] outline-none"
+              className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-sm bg-brand-bg focus:bg-white focus:border-brand-teal outline-none transition-colors"
             />
           </div>
 
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+            <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1.5">
               Link anteprima
             </label>
             <div className="space-y-2">
@@ -195,12 +196,12 @@ export default function ModificaProdottoPage() {
                     value={url}
                     onChange={(e) => aggiornaLinkPreview(index, e.target.value)}
                     placeholder="YouTube, Vimeo, Google Drive, qualsiasi URL..."
-                    className="flex-1 px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-[#F7F8FA] focus:bg-white focus:border-[#0E9F8E] outline-none"
+                    className="flex-1 px-3 py-2.5 border border-brand-border rounded-xl text-sm bg-brand-bg focus:bg-white focus:border-brand-teal outline-none transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => rimuoviLinkPreview(index)}
-                    className="px-3 py-2.5 border border-gray-200 rounded-xl text-gray-500 hover:border-red-300 hover:text-red-500 transition-colors"
+                    className="w-11 h-11 flex items-center justify-center border border-brand-border rounded-xl text-brand-muted hover:border-red-300 hover:text-red-500 transition-colors shrink-0"
                     aria-label="Rimuovi link anteprima"
                   >
                     <X size={16} />
@@ -211,7 +212,7 @@ export default function ModificaProdottoPage() {
             <button
               type="button"
               onClick={aggiungiLinkPreview}
-              className="mt-2 flex items-center gap-1.5 text-sm font-medium text-[#0E9F8E] hover:text-[#0b8a7a] transition-colors"
+              className="mt-2 flex items-center gap-1.5 text-sm font-medium text-brand-teal hover:text-brand-teal-dark transition-colors"
             >
               <Plus size={16} />
               Aggiungi link anteprima
@@ -219,31 +220,31 @@ export default function ModificaProdottoPage() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+            <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide mb-1.5">
               Link download privato *
             </label>
             <input
               value={form.link_download}
               onChange={(e) => set('link_download', e.target.value)}
               placeholder="Google Drive, Dropbox, WeTransfer..."
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm bg-[#F7F8FA] focus:bg-white focus:border-[#0E9F8E] outline-none"
+              className="w-full px-3 py-2.5 border border-brand-border rounded-xl text-sm bg-brand-bg focus:bg-white focus:border-brand-teal outline-none transition-colors"
             />
           </div>
 
           {prodotto && (
-            <div className="text-xs text-gray-400 font-mono">
+            <div className="text-xs text-brand-muted-2 font-mono">
               Link pubblico: /store/{prodotto.slug}
             </div>
           )}
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-6">
+        <div className="bg-white border border-brand-border rounded-card-lg p-6 shadow-card mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-[#0D1B2A]">
+              <h3 className="text-sm font-semibold text-brand-navy">
                 Prodotto attivo
               </h3>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-brand-muted-2 mt-0.5">
                 Se disattivato, la pagina store non sarà acquistabile
               </p>
             </div>
@@ -251,7 +252,7 @@ export default function ModificaProdottoPage() {
               type="button"
               onClick={() => set('attivo', !form.attivo)}
               className={`relative w-12 h-7 rounded-full transition-colors ${
-                form.attivo ? 'bg-[#0E9F8E]' : 'bg-gray-300'
+                form.attivo ? 'bg-brand-teal' : 'bg-gray-300'
               }`}
             >
               <span
@@ -266,7 +267,7 @@ export default function ModificaProdottoPage() {
         <button
           onClick={salva}
           disabled={saving}
-          className="w-full py-3 bg-[#0D1B2A] text-white rounded-xl font-semibold text-sm hover:bg-[#162540] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full py-3.5 bg-brand-navy text-white rounded-xl font-semibold text-sm hover:bg-[#162540] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {saving && <Loader2 size={15} className="animate-spin" />}
           Salva modifiche

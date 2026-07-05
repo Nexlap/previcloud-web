@@ -42,7 +42,6 @@ async function fetchIncassatoTotale(accessToken: string): Promise<number> {
 
 export default function Dashboard() {
   const [nomeAzienda, setNomeAzienda] = useState('')
-  const [isAdmin, setIsAdmin] = useState(false)
   const [totalePreventivi, setTotalePreventivi] = useState(0)
   const [incassatoTotale, setIncassatoTotale] = useState(0)
   const [totaleVendite, setTotaleVendite] = useState(0)
@@ -64,11 +63,10 @@ export default function Dashboard() {
 
     const { data: prof } = await supabase
       .from('profiles')
-      .select('nome_azienda, is_admin')
+      .select('nome_azienda')
       .eq('id', user.id)
       .single()
     if (prof?.nome_azienda) setNomeAzienda(prof.nome_azienda)
-    if (prof?.is_admin) setIsAdmin(true)
 
     const { count: countPreventivi } = await supabase
       .from('preventivi')
@@ -106,8 +104,8 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F8FA] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#0E9F8E] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -117,113 +115,103 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout nomeAzienda={nomeDisplay} activeRoute="/dashboard">
-      {isAdmin && (
-        <div className="flex justify-end -mt-2 mb-4">
-          <Link
-            href="/dashboard/admin"
-            className="text-xs font-medium text-[#0D1B2A] border border-[#0D1B2A]/30 rounded-lg px-3 py-1.5 hover:bg-[#0D1B2A]/5 transition-colors"
-          >
-            📊 Analytics
-          </Link>
-        </div>
-      )}
-
       <div className="mb-8">
-        <p className="text-xs font-medium text-gray-400 tracking-wide">
+        <p className="text-xs font-medium text-brand-muted-2 tracking-wide">
           {dataItalianaMaiuscola()}
         </p>
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#0D1B2A] tracking-tight mt-1">
-          Buon {salutoOrario()}, {nomeDisplay}! 👋
+        <h1 className="text-2xl sm:text-3xl font-bold text-brand-navy tracking-tight mt-1">
+          Buon {salutoOrario()}, {nomeDisplay}
         </h1>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-brand-muted mt-2">
           Panoramica della tua attività su PreviCloud
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex items-start justify-between">
+      {/* Incassato totale — metrica primaria, isolata e con peso visivo maggiore */}
+      <div className="bg-brand-navy rounded-card-lg p-6 sm:p-7 mb-4 shadow-card flex items-center justify-between gap-6">
+        <div>
+          <p className="text-xs text-gray-400">Incassato totale</p>
+          <p className="text-4xl font-bold text-white mt-1.5 tracking-tight">{incassatoLabel}</p>
+        </div>
+        <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+          <CreditCard size={22} className="text-brand-teal-light" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div className="bg-white border border-brand-border rounded-card p-5 shadow-card shadow-card-hover transition-shadow flex items-start justify-between">
           <div>
-            <p className="text-xs text-gray-500">Preventivi creati</p>
-            <p className="text-3xl font-bold text-[#0D1B2A] mt-1">
+            <p className="text-xs text-brand-muted">Preventivi creati</p>
+            <p className="text-2xl font-bold text-brand-navy mt-1">
               {totalePreventivi}
             </p>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#F7F8FA] flex items-center justify-center">
-            <FileText size={20} className="text-gray-400" />
+          <div className="w-10 h-10 rounded-xl bg-brand-bg flex items-center justify-center">
+            <FileText size={19} className="text-brand-muted-2" />
           </div>
         </div>
 
-        <div className="bg-[#0D1B2A] border border-[#0D1B2A] rounded-2xl p-5 shadow-sm flex items-start justify-between">
+        <div className="bg-white border border-brand-border rounded-card p-5 shadow-card shadow-card-hover transition-shadow flex items-start justify-between">
           <div>
-            <p className="text-xs text-gray-400">Incassato totale</p>
-            <p className="text-3xl font-bold text-white mt-1">{incassatoLabel}</p>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-            <CreditCard size={20} className="text-[#2DD4BF]" />
-          </div>
-        </div>
-
-        <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex items-start justify-between">
-          <div>
-            <p className="text-xs text-gray-500">Vendite prodotti digitali</p>
-            <p className="text-3xl font-bold text-[#0E9F8E] mt-1">
+            <p className="text-xs text-brand-muted">Vendite prodotti digitali</p>
+            <p className="text-2xl font-bold text-brand-teal mt-1">
               {totaleVendite}
             </p>
           </div>
           <div className="w-10 h-10 rounded-xl bg-[#F0FDF4] flex items-center justify-center">
-            <ShoppingBag size={20} className="text-[#0E9F8E]" />
+            <ShoppingBag size={19} className="text-brand-teal" />
           </div>
         </div>
       </div>
 
-      <div className="bg-[#0D1B2A] border-2 border-[#0E9F8E] rounded-2xl p-6 sm:p-8 mb-8 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="bg-white border border-brand-border rounded-card-lg p-6 sm:p-7 mb-6 shadow-card flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="max-w-xl">
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-base font-semibold text-brand-navy">
             Gestisci i tuoi preventivi dall&apos;app
           </h2>
-          <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+          <p className="text-sm text-brand-muted mt-1.5 leading-relaxed">
             Crea preventivi con AI, gestisci clienti, piani di pagamento e
             molto altro dall&apos;app mobile o desktop.
           </p>
-          <div className="flex flex-wrap gap-3 mt-5">
+          <div className="flex flex-wrap gap-3 mt-4">
             <a
               href="#"
-              className="px-4 py-2 text-sm font-medium text-white border border-white/40 rounded-xl hover:bg-white/10 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-brand-navy border border-brand-border rounded-xl hover:border-brand-navy/30 hover:bg-brand-bg transition-colors"
             >
               Scarica app Android
             </a>
             <a
               href="#"
-              className="px-4 py-2 text-sm font-medium text-white border border-white/40 rounded-xl hover:bg-white/10 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-brand-navy border border-brand-border rounded-xl hover:border-brand-navy/30 hover:bg-brand-bg transition-colors"
             >
               Scarica app Windows
             </a>
           </div>
         </div>
         <Smartphone
-          size={72}
-          className="text-[#0E9F8E]/40 shrink-0 hidden sm:block"
+          size={64}
+          className="text-brand-teal/30 shrink-0 hidden sm:block"
           strokeWidth={1.25}
         />
       </div>
 
       <Link
         href="/dashboard/prodotti"
-        className="flex items-center justify-between gap-4 bg-[#0E9F8E] text-white rounded-xl p-6 mb-8 shadow-sm hover:bg-[#0b8a7a] transition-colors group"
+        className="flex items-center justify-between gap-4 bg-brand-teal text-white rounded-card p-5 sm:p-6 mb-8 shadow-card hover:shadow-card-hover hover:bg-brand-teal-dark transition-all group"
       >
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-            <Package size={24} />
+          <div className="w-11 h-11 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+            <Package size={22} />
           </div>
           <div className="min-w-0">
-            <p className="font-semibold text-lg">I tuoi prodotti digitali</p>
+            <p className="font-semibold text-base">I tuoi prodotti digitali</p>
             <p className="text-sm text-white/80 mt-0.5">
               Vendi guide, template e file ai tuoi clienti
             </p>
           </div>
         </div>
         <ArrowRight
-          size={22}
+          size={20}
           className="shrink-0 group-hover:translate-x-0.5 transition-transform"
         />
       </Link>

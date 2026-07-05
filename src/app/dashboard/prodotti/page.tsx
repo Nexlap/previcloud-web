@@ -10,7 +10,7 @@ import {
 } from '@/lib/prodotti'
 import { formatEuro } from '@/lib/formatEuro'
 import { DashboardLayout } from '@/components/DashboardLayout'
-import { Plus, Copy, Pencil, Trash2, Package, Link2 } from 'lucide-react'
+import { Plus, Copy, Pencil, Trash2, Package, Link2, AlertTriangle } from 'lucide-react'
 
 type StatisticheProdotto = { vendite: number; incassato: number }
 
@@ -78,8 +78,8 @@ export default function ProdottiPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F8FA] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#0E9F8E] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
@@ -89,29 +89,32 @@ export default function ProdottiPage() {
       nomeAzienda={nomeAzienda || 'Artigiano'}
       activeRoute="/dashboard/prodotti"
     >
-      <div className="-mx-4 -mt-8 px-4 pt-8 pb-10 min-h-[calc(100vh-120px)] bg-gradient-to-b from-[#F0FDFB] to-[#F7F8FA]">
+      <div className="-mx-4 -mt-6 sm:-mt-8 px-4 pt-6 sm:pt-8 pb-10 min-h-[calc(100vh-120px)] bg-gradient-to-b from-[#F0FDFB] to-brand-bg">
         {mostraBannerStripe && (
-          <div className="mb-6 rounded-xl border border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 text-sm text-amber-900 shadow-sm">
-            ⚠️ Collega il tuo account Stripe per ricevere i pagamenti dei tuoi
-            prodotti digitali. I pagamenti verranno gestiti dalla piattaforma
-            fino alla connessione.
+          <div className="mb-6 flex items-start gap-2.5 rounded-xl border border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50 px-4 py-3 text-sm text-amber-900 shadow-card">
+            <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-500" />
+            <span>
+              Collega il tuo account Stripe per ricevere i pagamenti dei tuoi
+              prodotti digitali. I pagamenti verranno gestiti dalla piattaforma
+              fino alla connessione.
+            </span>
           </div>
         )}
 
         <div className="flex items-start gap-4 mb-2">
           <div className="w-14 h-14 rounded-2xl bg-[#E1F5EE] flex items-center justify-center shrink-0">
-            <Package size={28} className="text-[#0E9F8E]" />
+            <Package size={28} className="text-brand-teal" />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl font-bold text-[#0D1B2A] tracking-tight">
+              <h1 className="text-2xl font-bold text-brand-navy tracking-tight">
                 Prodotti digitali
               </h1>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#0D1B2A] text-[#2DD4BF] px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-brand-navy text-brand-teal-light px-2 py-0.5 rounded-full">
                 BETA
               </span>
             </div>
-            <p className="text-sm text-gray-500 mt-1 max-w-lg">
+            <p className="text-sm text-brand-muted mt-1 max-w-lg">
               Crea e vendi i tuoi contenuti digitali direttamente ai clienti
             </p>
           </div>
@@ -120,27 +123,27 @@ export default function ProdottiPage() {
         <button
           type="button"
           onClick={() => (window.location.href = '/dashboard/prodotti/nuovo')}
-          className="w-full mt-8 mb-6 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[#0E9F8E] rounded-2xl py-10 px-6 bg-white/60 hover:bg-white hover:border-[#0b8a7a] transition-all group"
+          className="w-full mt-8 mb-6 flex flex-col items-center justify-center gap-3 border-2 border-dashed border-brand-teal rounded-card-lg py-10 px-6 bg-white/60 hover:bg-white hover:border-brand-teal-dark transition-all group"
         >
           <div className="w-12 h-12 rounded-full bg-[#E1F5EE] flex items-center justify-center group-hover:scale-105 transition-transform">
-            <Plus size={24} className="text-[#0E9F8E]" />
+            <Plus size={24} className="text-brand-teal" />
           </div>
           <div className="text-center">
-            <p className="font-semibold text-[#0D1B2A]">
+            <p className="font-semibold text-brand-navy">
               {prodotti.length === 0
                 ? 'Crea il tuo primo prodotto'
                 : 'Nuovo prodotto'}
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-brand-muted-2 mt-1">
               Guide, template, file e contenuti scaricabili
             </p>
           </div>
         </button>
 
         {prodotti.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-2xl p-10 text-center shadow-sm">
+          <div className="bg-white border border-brand-border rounded-card-lg p-10 text-center shadow-card">
             <Package size={36} className="text-gray-200 mx-auto mb-3" />
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-brand-muted-2">
               Nessun prodotto ancora. Inizia dal pulsante sopra.
             </p>
           </div>
@@ -152,16 +155,16 @@ export default function ProdottiPage() {
               return (
               <div
                 key={p.id}
-                className={`rounded-2xl p-6 shadow-sm hover:shadow-md transition-all ${
+                className={`rounded-card-lg p-6 shadow-card hover:shadow-card-hover transition-all ${
                   haVendite
-                    ? 'bg-gradient-to-br from-[#ECFDF8] via-[#F4FBF9] to-white border border-[#0E9F8E]/30 ring-1 ring-[#0E9F8E]/10'
-                    : 'bg-white border border-gray-200'
+                    ? 'bg-gradient-to-br from-[#ECFDF8] via-[#F4FBF9] to-white border border-brand-teal/30 ring-1 ring-brand-teal/10'
+                    : 'bg-white border border-brand-border'
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap mb-2">
-                      <h3 className="text-lg font-bold text-[#0D1B2A]">
+                      <h3 className="text-lg font-bold text-brand-navy">
                         {p.titolo}
                       </h3>
                       <span
@@ -174,18 +177,18 @@ export default function ProdottiPage() {
                         {p.attivo ? 'Attivo' : 'Inattivo'}
                       </span>
                     </div>
-                    <p className="text-2xl font-bold text-[#0E9F8E]">
+                    <p className="text-2xl font-bold text-brand-teal">
                       {formatEuro(p.prezzo)}
                     </p>
                     {haVendite ? (
                       <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full bg-[#D1FAE5]/80 text-sm font-medium text-[#065F46]">
-                        <span className="text-[#0E9F8E]">●</span>
+                        <span className="text-brand-teal">●</span>
                         {stats.vendite}{' '}
                         {stats.vendite === 1 ? 'vendita' : 'vendite'} ·{' '}
                         {formatEuro(stats.incassato)} incassati
                       </span>
                     ) : (
-                      <p className="text-sm text-gray-400 mt-2">
+                      <p className="text-sm text-brand-muted-2 mt-2">
                         Nessuna vendita ancora
                       </p>
                     )}
@@ -195,18 +198,18 @@ export default function ProdottiPage() {
                 <div
                   className={`mt-4 flex items-center gap-2 p-3 rounded-xl border ${
                     haVendite
-                      ? 'bg-white/70 border-[#0E9F8E]/15'
-                      : 'bg-[#F7F8FA] border-gray-100'
+                      ? 'bg-white/70 border-brand-teal/15'
+                      : 'bg-brand-bg border-gray-100'
                   }`}
                 >
-                  <Link2 size={14} className="text-gray-400 shrink-0" />
-                  <span className="text-xs font-mono text-gray-500 truncate flex-1">
+                  <Link2 size={14} className="text-brand-muted-2 shrink-0" />
+                  <span className="text-xs font-mono text-brand-muted truncate flex-1">
                     /store/{p.slug}
                   </span>
                   <button
                     type="button"
                     onClick={() => copiaLink(p.slug)}
-                    className="flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#0E9F8E] hover:bg-[#E1F5EE] rounded-lg transition-colors shrink-0"
+                    className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-brand-teal hover:bg-[#E1F5EE] rounded-lg transition-colors shrink-0"
                   >
                     <Copy size={12} />
                     {copiato === p.slug ? 'Copiato!' : 'Copia'}
@@ -219,7 +222,7 @@ export default function ProdottiPage() {
                     onClick={() =>
                       (window.location.href = `/dashboard/prodotti/${p.id}`)
                     }
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[#0D1B2A] text-white rounded-xl hover:bg-[#162540] transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium bg-brand-navy text-white rounded-xl hover:bg-[#162540] transition-all"
                   >
                     <Pencil size={14} />
                     Modifica
@@ -227,7 +230,7 @@ export default function ProdottiPage() {
                   <button
                     type="button"
                     onClick={() => handleElimina(p.id, p.titolo)}
-                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium border border-red-200 text-red-500 rounded-xl hover:bg-red-50 transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border border-red-200 text-red-500 rounded-xl hover:bg-red-50 transition-all"
                   >
                     <Trash2 size={14} />
                     Elimina

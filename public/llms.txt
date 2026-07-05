@@ -1,0 +1,30 @@
+# PreviCloud
+
+> PreviCloud è il SaaS italiano per artigiani, professionisti e freelance che permette di creare preventivi professionali con l'intelligenza artificiale, farli firmare digitalmente e incassare online. Sviluppato in Italia in sinergia tecnologica con Nexlap (https://nexlap.it).
+
+## Cos'è PreviCloud
+PreviCloud trasforma qualche parola scritta in chat o dettata a voce in un preventivo PDF professionale e conforme alla normativa fiscale italiana, pronto da inviare al cliente via WhatsApp, email o link. Il cliente lo firma online e paga l'acconto senza dover installare app o registrarsi. È pensato per idraulici, elettricisti, videomaker, consulenti e chiunque lavori su commessa.
+
+## Funzionalità principali
+- Preventivatore via chat AI: descrivi il lavoro a voce o in testo, l'AI struttura voci e prezzi usando il tuo listino servizi.
+- Registrazione vocale: detta i lavori dal cantiere o dall'auto, l'app trascrive e compila la bozza.
+- Template PDF personalizzati: impaginazione professionale con logo, colori e brand della tua attività.
+- Firma digitale con OTP: il cliente firma online con valore legale e audit trail (data, ora, prova di accettazione).
+- Pagamenti con Stripe Connect: incassi direttamente sul tuo conto, con rate e abbonamenti ricorrenti.
+- Analisi fiscale in tempo reale: stima di netto, imposte, contributi e lordo per il regime forfettario italiano.
+- Gestione clienti e storico: anagrafica, stato firme e pagamenti per ogni cliente.
+- Multi-piattaforma: web, app mobile (iOS/Android) e desktop (Windows/macOS), sincronizzati sullo stesso account.
+
+## Stato del prodotto
+PreviCloud è attualmente in beta privata gratuita. L'accesso è su invito e i posti sono limitati fino a 20 beta tester. Non è richiesta carta di credito.
+
+## Sicurezza e privacy
+I dati sono ospitati su infrastruttura Supabase con data center nell'Unione Europea (ove configurato) e isolamento per utente tramite Row Level Security. I pagamenti sono gestiti da Stripe (PCI-DSS). PreviCloud non vende i dati e non effettua profilazione commerciale. Vedi /privacy per l'informativa completa.
+
+## Link utili
+- Homepage: https://previcloud.it/
+- Domande frequenti: https://previcloud.it/faq
+- Privacy policy: https://previcloud.it/privacy
+- Termini di servizio: https://previcloud.it/termini
+- Cookie policy: https://previcloud.it/cookie-policy
+- Accesso / login: https://previcloud.it/login

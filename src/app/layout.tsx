@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import CookieConsent from "@/components/CookieConsent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,10 +13,42 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Font editoriale per titoli/numeri della landing page — rompe l'estetica
+// "generico SaaS" data da un sans-serif system-ui usato ovunque.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+// Font della landing page (portato da previcloud-gemini). Applicato solo alle
+// pagine marketing tramite la classe `.landing-root`; la dashboard resta su Geist.
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
+  subsets: ["latin"],
+});
+
+const SITE_URL = "https://previcloud.it";
+
 export const metadata: Metadata = {
-  title: "PreviCloud — Beta aperta",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "PreviCloud — Preventivi con AI, firma digitale e pagamenti",
+    template: "%s | PreviCloud",
+  },
   description:
-    "Preventivi professionali con AI, firma digitale, pagamento Stripe e notifiche. Richiedi l'accesso gratuito alla beta.",
+    "PreviCloud è il SaaS italiano per artigiani: preventivi professionali con AI, firma digitale e incassi con Stripe. Beta privata gratuita, posti limitati.",
+  applicationName: "PreviCloud",
+  keywords: [
+    "preventivi",
+    "preventivi AI",
+    "artigiani",
+    "firma digitale",
+    "Stripe",
+    "SaaS italiano",
+    "preventivo PDF",
+  ],
 };
 
 export default function RootLayout({
@@ -26,9 +59,12 @@ export default function RootLayout({
   return (
     <html
       lang="it"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${jakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <CookieConsent />
+      </body>
     </html>
   );
 }

@@ -1,14 +1,29 @@
 @import "tailwindcss";
 
 :root {
+  /* ── Brand tokens — unica fonte di verità per landing + dashboard ── */
   --color-brand-navy: #0d1b2a;
+  --color-brand-navy-soft: #152536;
   --color-brand-teal: #0e9f8e;
+  --color-brand-teal-light: #14b8a6;
+  --color-brand-teal-dark: #0c8a7b;
   --color-brand-bg: #f7f8fa;
   --color-ink: #0d1b2a;
   --color-muted: #6b7280;
+  --color-muted-2: #94a3b8;
   --color-border: #e5e7eb;
   --background: var(--color-brand-bg);
   --foreground: var(--color-ink);
+
+  /* Radius scale */
+  --radius-card: 16px;
+  --radius-card-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Shadow scale — stesso "peso" ovunque nel sito */
+  --shadow-card: 0 1px 2px rgba(13, 27, 42, 0.04), 0 4px 16px rgba(13, 27, 42, 0.05);
+  --shadow-card-hover: 0 4px 10px rgba(13, 27, 42, 0.06), 0 12px 32px rgba(13, 27, 42, 0.09);
+  --shadow-card-lg: 0 20px 60px rgba(13, 27, 42, 0.12);
 }
 
 @theme inline {
@@ -16,6 +31,30 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-brand-navy: var(--color-brand-navy);
+  --color-brand-navy-soft: var(--color-brand-navy-soft);
+  --color-brand-teal: var(--color-brand-teal);
+  --color-brand-teal-light: var(--color-brand-teal-light);
+  --color-brand-teal-dark: var(--color-brand-teal-dark);
+  --color-brand-bg: var(--color-brand-bg);
+  --color-brand-muted: var(--color-muted);
+  --color-brand-muted-2: var(--color-muted-2);
+  --color-brand-border: var(--color-border);
+
+  /* ── Colori landing (portati da previcloud-gemini) — generano le utility
+     bg-teal-brand / text-teal-brand / text-teal-dark usate dai componenti
+     della landing page. Coincidono con i valori originali. ── */
+  --color-teal-brand: #0e9f8e;
+  --color-teal-dark: #0b7a6d;
+
+  --radius-card: var(--radius-card);
+  --radius-card-lg: var(--radius-card-lg);
+  --radius-pill: var(--radius-pill);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-card-lg: var(--shadow-card-lg);
 }
 
 body {
@@ -23,6 +62,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
 }
+
+/* ── Utility di supporto per la dashboard (Tailwind v4 @theme non genera
+   automaticamente utility per shadow custom, quindi le esponiamo qui) ── */
+.shadow-card { box-shadow: var(--shadow-card); }
+.shadow-card-hover:hover { box-shadow: var(--shadow-card-hover); }
+.shadow-card-lg { box-shadow: var(--shadow-card-lg); }
 
 .firma-public-page {
   height: 100dvh;
@@ -33,4 +78,20 @@ body {
 
 .firma-public-page input[type="checkbox"] {
   accent-color: var(--color-brand-teal);
+}
+
+/* ── Landing page (portata da previcloud-gemini) ── */
+@keyframes previcloudFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: previcloudFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Il wrapper .landing-root imposta Plus Jakarta Sans come font ereditato
+   da tutta la landing, senza toccare il font della dashboard (Geist). */
+.landing-root {
+  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 }

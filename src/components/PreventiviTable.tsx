@@ -125,16 +125,16 @@ export function PreventiviTable({
   subtitle = 'Ultimi 5 preventivi',
 }: Props) {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+    <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
       <div className="flex items-start justify-between gap-4 px-5 py-4 border-b border-gray-100">
         <div>
-          <h3 className="text-sm font-semibold text-[#0D1B2A]">{title}</h3>
-          <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
+          <h3 className="text-sm font-semibold text-brand-navy">{title}</h3>
+          <p className="text-xs text-brand-muted-2 mt-0.5">{subtitle}</p>
         </div>
         {showHeaderLink && (
           <Link
             href="/dashboard/storico"
-            className="text-xs font-medium text-[#0E9F8E] hover:underline whitespace-nowrap"
+            className="text-xs font-medium text-brand-teal hover:underline whitespace-nowrap"
           >
             Apri storico completo →
           </Link>
@@ -142,11 +142,11 @@ export function PreventiviTable({
       </div>
 
       {preventivi.length === 0 ? (
-        <div className="px-5 py-10 text-center text-sm text-gray-400">
-          Nessun preventivo ancora.
+        <div className="px-5 py-12 text-center">
+          <p className="text-sm text-brand-muted-2">Nessun preventivo ancora.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto relative [mask-image:linear-gradient(to_right,black_calc(100%-24px),transparent)] sm:[mask-image:none]">
           <table className="w-full text-sm min-w-[720px]">
             <thead>
               <tr className="text-left text-xs text-gray-400 border-b border-gray-50">
@@ -178,19 +178,19 @@ export function PreventiviTable({
                       {numeroPreventivoLabel(p)}
                     </td>
                     <td className="px-3 py-3.5">
-                      <div className="font-medium text-[#0D1B2A]">
+                      <div className="font-medium text-brand-navy">
                         {p.nome_cliente || 'Cliente'}
                       </div>
                       {p.titolo && (
-                        <div className="text-xs text-gray-400 truncate max-w-[140px]">
+                        <div className="text-xs text-brand-muted-2 truncate max-w-[140px]">
                           {p.titolo}
                         </div>
                       )}
                     </td>
-                    <td className="px-3 py-3.5 text-gray-500 whitespace-nowrap">
+                    <td className="px-3 py-3.5 text-brand-muted whitespace-nowrap">
                       {new Date(p.created_at).toLocaleDateString('it-IT')}
                     </td>
-                    <td className="px-3 py-3.5 font-medium text-[#0D1B2A] whitespace-nowrap">
+                    <td className="px-3 py-3.5 font-medium text-brand-navy whitespace-nowrap">
                       {importo ?? '—'}
                     </td>
                     <td className="px-3 py-3.5">
@@ -201,12 +201,12 @@ export function PreventiviTable({
                       </span>
                     </td>
                     <td className="px-5 py-3.5">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1">
                         {token ? (
                           <Link
                             href={`/p/${token}`}
                             target="_blank"
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium border border-[#0E9F8E] text-[#0E9F8E] rounded-lg hover:bg-[#E1F5EE] transition-colors"
+                            className="inline-flex items-center gap-1 px-2.5 py-2 text-xs font-medium border border-brand-teal text-brand-teal rounded-lg hover:bg-[#E1F5EE] transition-colors"
                           >
                             <PenLine size={13} />
                             Invia firma
@@ -214,7 +214,7 @@ export function PreventiviTable({
                         ) : (
                           <span
                             title="Genera il link firma dall'app"
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium border border-gray-200 text-gray-300 rounded-lg cursor-not-allowed"
+                            className="inline-flex items-center gap-1 px-2.5 py-2 text-xs font-medium border border-gray-200 text-gray-300 rounded-lg cursor-not-allowed"
                           >
                             <PenLine size={13} />
                             Invia firma
@@ -225,14 +225,15 @@ export function PreventiviTable({
                             href={p.pdf_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 text-gray-500 hover:text-[#0E9F8E] transition-colors"
+                            className="w-9 h-9 flex items-center justify-center text-brand-muted hover:text-brand-teal transition-colors"
                             title="Scarica PDF"
+                            aria-label="Scarica PDF"
                           >
                             <Download size={16} />
                           </a>
                         ) : (
                           <span
-                            className="p-1.5 text-gray-200 cursor-not-allowed"
+                            className="w-9 h-9 flex items-center justify-center text-gray-200 cursor-not-allowed"
                             title="PDF non disponibile"
                           >
                             <Download size={16} />

@@ -59,25 +59,25 @@ export default function Storico() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F8FA] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#0E9F8E] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-brand-bg flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <DashboardLayout nomeAzienda={nomeAzienda || 'Artigiano'}>
+    <DashboardLayout nomeAzienda={nomeAzienda || 'Artigiano'} activeRoute="/dashboard/storico">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#0D1B2A] tracking-tight">
+        <h1 className="text-2xl font-bold text-brand-navy tracking-tight">
           Storico preventivi
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Tutti i tuoi preventivi</p>
+        <p className="text-sm text-brand-muted mt-1">Tutti i tuoi preventivi</p>
       </div>
 
       {preventivi.length === 0 ? (
-        <div className="text-center mt-16 bg-white border border-gray-200 rounded-2xl py-16 shadow-sm">
+        <div className="text-center mt-16 bg-white border border-brand-border rounded-card-lg py-16 shadow-card">
           <FileText size={40} className="text-gray-200 mx-auto mb-3" />
-          <p className="text-gray-500 text-sm">Nessun preventivo salvato.</p>
+          <p className="text-brand-muted text-sm">Nessun preventivo salvato.</p>
         </div>
       ) : (
         <>
@@ -93,12 +93,12 @@ export default function Storico() {
                 type="button"
                 onClick={() => setPagina((p) => Math.max(0, p - 1))}
                 disabled={paginaCorrente === 0}
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium border border-gray-200 rounded-xl text-gray-600 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 px-4 py-2.5 text-sm font-medium border border-brand-border rounded-xl text-gray-600 hover:border-gray-300 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft size={16} />
                 Precedente
               </button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-brand-muted">
                 Pagina {paginaCorrente + 1} di {totalePagine}
               </span>
               <button
@@ -107,7 +107,7 @@ export default function Storico() {
                   setPagina((p) => Math.min(totalePagine - 1, p + 1))
                 }
                 disabled={paginaCorrente >= totalePagine - 1}
-                className="flex items-center gap-1 px-4 py-2 text-sm font-medium border border-gray-200 rounded-xl text-gray-600 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center gap-1 px-4 py-2.5 text-sm font-medium border border-brand-border rounded-xl text-gray-600 hover:border-gray-300 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Successivo
                 <ChevronRight size={16} />

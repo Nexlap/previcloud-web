@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { DashboardLayout } from '@/components/DashboardLayout'
 
 interface StatoGenerale {
   totale_utenti: number
@@ -198,6 +199,7 @@ function calcolaFeatureAdoption(
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [accesso, setAccesso] = useState(false)
+  const [nomeAzienda, setNomeAzienda] = useState('')
   const [stato, setStato] = useState<StatoGenerale | null>(null)
   const [eventiCompleti, setEventiCompleti] = useState<EventoRaw[]>([])
   const [filtroPiattaforma, setFiltroPiattaforma] =
@@ -236,8 +238,9 @@ export default function AdminDashboard() {
   async function checkAdmin() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { window.location.href = '/login'; return }
-    const { data } = await supabase.from('profiles').select('is_admin').eq('id', user.id).single()
+    const { data } = await supabase.from('profiles').select('is_admin, nome_azienda').eq('id', user.id).single()
     if (!data?.is_admin) { window.location.href = '/dashboard'; return }
+    if (data.nome_azienda) setNomeAzienda(data.nome_azienda)
     setAccesso(true)
     setLoading(false)
   }
@@ -467,38 +470,33 @@ export default function AdminDashboard() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0D1B2A] flex items-center justify-center">
-      <div className="w-6 h-6 border-2 border-[#0E9F8E] border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-brand-navy flex items-center justify-center">
+      <div className="w-6 h-6 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
     </div>
   )
 
   if (!accesso) return null
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA]">
-      <header className="bg-[#0D1B2A] px-6 py-4 flex items-center justify-between">
+    <DashboardLayout nomeAzienda={nomeAzienda || 'Admin'} activeRoute="/dashboard/admin">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-lg font-semibold text-white">Admin Dashboard</h1>
-          <p className="text-xs text-gray-400">PreviCloud — solo tu vedi questa pagina</p>
+          <h1 className="text-2xl font-bold text-brand-navy tracking-tight">Analytics</h1>
+          <p className="text-sm text-brand-muted mt-1">PreviCloud — solo tu vedi questa pagina</p>
         </div>
-        <div className="flex items-center gap-3">
-          <select
-            value={periodoGiorni}
-            onChange={e => setPeriodoGiorni(Number(e.target.value))}
-            className="text-xs bg-[#1a2d42] text-white border border-gray-600 rounded-lg px-3 py-1.5"
-          >
-            <option value={1}>Oggi</option>
-            <option value={7}>Ultimi 7 giorni</option>
-            <option value={30}>Ultimi 30 giorni</option>
-            <option value={90}>Ultimi 90 giorni</option>
-          </select>
-          <button onClick={() => window.location.href = '/dashboard'} className="text-xs text-gray-400 hover:text-white">
-            ← Dashboard
-          </button>
-        </div>
-      </header>
+        <select
+          value={periodoGiorni}
+          onChange={e => setPeriodoGiorni(Number(e.target.value))}
+          className="text-xs bg-white text-brand-navy border border-brand-border rounded-lg px-3 py-2 shadow-card"
+        >
+          <option value={1}>Oggi</option>
+          <option value={7}>Ultimi 7 giorni</option>
+          <option value={30}>Ultimi 30 giorni</option>
+          <option value={90}>Ultimi 90 giorni</option>
+        </select>
+      </div>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="space-y-6">
 
         {/* Stats generali */}
         {stato && (
@@ -507,12 +505,12 @@ export default function AdminDashboard() {
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Utenti</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: 'Utenti totali', val: stato.totale_utenti, color: 'text-[#0D1B2A]' },
-                  { label: `Attivi ${periodoGiorni}gg`, val: stato.utenti_attivi_7gg, color: 'text-[#0E9F8E]' },
-                  { label: 'Preventivi totali', val: stato.preventivi_totali, color: 'text-[#0D1B2A]' },
-                  { label: 'PDF oggi', val: stato.preventivi_oggi, color: 'text-[#0E9F8E]' },
+                  { label: 'Utenti totali', val: stato.totale_utenti, color: 'text-brand-navy' },
+                  { label: `Attivi ${periodoGiorni}gg`, val: stato.utenti_attivi_7gg, color: 'text-brand-teal' },
+                  { label: 'Preventivi totali', val: stato.preventivi_totali, color: 'text-brand-navy' },
+                  { label: 'PDF oggi', val: stato.preventivi_oggi, color: 'text-brand-teal' },
                 ].map(s => (
-                  <div key={s.label} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                  <div key={s.label} className="bg-white border border-brand-border rounded-card p-4 shadow-card">
                     <div className={`text-2xl font-bold ${s.color}`}>{s.val}</div>
                     <div className="text-xs text-gray-500 mt-1">{s.label}</div>
                   </div>
@@ -524,12 +522,12 @@ export default function AdminDashboard() {
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Costi AI</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: `Token input (${periodoGiorni}gg)`, val: stato.token_input_totali.toLocaleString(), color: 'text-[#0D1B2A]' },
-                  { label: `Token output (${periodoGiorni}gg)`, val: stato.token_output_totali.toLocaleString(), color: 'text-[#0D1B2A]' },
+                  { label: `Token input (${periodoGiorni}gg)`, val: stato.token_input_totali.toLocaleString(), color: 'text-brand-navy' },
+                  { label: `Token output (${periodoGiorni}gg)`, val: stato.token_output_totali.toLocaleString(), color: 'text-brand-navy' },
                   { label: `Costo ${periodoGiorni}gg`, val: `€${stato.costo_totale_euro.toFixed(4)}`, color: 'text-orange-500' },
                   { label: 'Costo oggi', val: `€${stato.costo_oggi_euro.toFixed(4)}`, color: 'text-orange-500' },
                 ].map(s => (
-                  <div key={s.label} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+                  <div key={s.label} className="bg-white border border-brand-border rounded-card p-4 shadow-card">
                     <div className={`text-2xl font-bold ${s.color}`}>{s.val}</div>
                     <div className="text-xs text-gray-500 mt-1">{s.label}</div>
                   </div>
@@ -543,11 +541,11 @@ export default function AdminDashboard() {
         {usaggioEndpoint.length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Endpoint AI</h2>
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Endpoint</th>
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-brand-muted">Endpoint</th>
                     <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Chiamate</th>
                     <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Token totali</th>
                     <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Costo €</th>
@@ -557,7 +555,7 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-gray-50">
                   {usaggioEndpoint.map(e => (
                     <tr key={e.endpoint} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-mono text-xs text-[#0D1B2A]">{e.endpoint}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-brand-navy">{e.endpoint}</td>
                       <td className="px-4 py-3 text-right text-gray-700">{e.chiamate}</td>
                       <td className="px-4 py-3 text-right text-gray-700">{e.token_totali.toLocaleString()}</td>
                       <td className="px-4 py-3 text-right text-orange-500 font-medium">€{e.costo_euro.toFixed(4)}</td>
@@ -574,7 +572,7 @@ export default function AdminDashboard() {
         {eventiFrequenti.length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Funzioni più usate</h2>
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
@@ -592,7 +590,7 @@ export default function AdminDashboard() {
                     return (
                       <tr key={e.evento} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-xs text-gray-400">{i + 1}</td>
-                        <td className="px-4 py-3 text-sm text-[#0D1B2A]">
+                        <td className="px-4 py-3 text-sm text-brand-navy">
                           {NOMI_EVENTI[e.evento] ?? e.evento}
                         </td>
                         <td className="px-4 py-3 text-xs text-gray-500 font-mono">
@@ -622,7 +620,7 @@ export default function AdminDashboard() {
         {featureAdoption.length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Feature adoption</h2>
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
@@ -634,11 +632,11 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-gray-50">
                   {featureAdoption.map((f) => (
                     <tr key={f.evento} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-[#0D1B2A]">
+                      <td className="px-4 py-3 text-sm text-brand-navy">
                         {NOMI_EVENTI[f.evento] ?? f.evento}
                       </td>
                       <td className="px-4 py-3 text-right text-gray-700">{f.utenti_unici}</td>
-                      <td className="px-4 py-3 text-right text-[#0E9F8E] font-medium">{f.pct}%</td>
+                      <td className="px-4 py-3 text-right text-brand-teal font-medium">{f.pct}%</td>
                     </tr>
                   ))}
                 </tbody>
@@ -652,21 +650,21 @@ export default function AdminDashboard() {
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Vendite prodotti digitali</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-              <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                <div className="text-2xl font-bold text-[#0D1B2A]">{venditeSommario.totale_vendite}</div>
+              <div className="bg-white border border-brand-border rounded-card p-4 shadow-card">
+                <div className="text-2xl font-bold text-brand-navy">{venditeSommario.totale_vendite}</div>
                 <div className="text-xs text-gray-500 mt-1">Totale vendite</div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                <div className="text-2xl font-bold text-[#0E9F8E]">€{venditeSommario.totale_incassato.toFixed(2)}</div>
+              <div className="bg-white border border-brand-border rounded-card p-4 shadow-card">
+                <div className="text-2xl font-bold text-brand-teal">€{venditeSommario.totale_incassato.toFixed(2)}</div>
                 <div className="text-xs text-gray-500 mt-1">Totale incassato</div>
               </div>
-              <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+              <div className="bg-white border border-brand-border rounded-card p-4 shadow-card">
                 <div className="text-2xl font-bold text-orange-500">€{venditeSommario.commissioni.toFixed(2)}</div>
                 <div className="text-xs text-gray-500 mt-1">Commissioni piattaforma (1%)</div>
               </div>
             </div>
             {venditeProdotti.length > 0 ? (
-              <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+              <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
                 <table className="w-full text-sm">
                   <thead className="bg-gray-50 border-b border-gray-100">
                     <tr>
@@ -679,10 +677,10 @@ export default function AdminDashboard() {
                   <tbody className="divide-y divide-gray-50">
                     {venditeProdotti.map((v) => (
                       <tr key={v.prodotto_id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium text-[#0D1B2A]">{v.titolo}</td>
+                        <td className="px-4 py-3 font-medium text-brand-navy">{v.titolo}</td>
                         <td className="px-4 py-3 text-gray-600">{v.creator}</td>
                         <td className="px-4 py-3 text-right text-gray-700">{v.vendite}</td>
-                        <td className="px-4 py-3 text-right text-[#0E9F8E] font-medium">€{v.incassato.toFixed(2)}</td>
+                        <td className="px-4 py-3 text-right text-brand-teal font-medium">€{v.incassato.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -706,14 +704,14 @@ export default function AdminDashboard() {
                 onChange={(e) =>
                   setFiltroPiattaforma(e.target.value as FiltroPiattaforma)
                 }
-                className="text-xs bg-white text-[#0D1B2A] border border-gray-200 rounded-lg px-3 py-1.5 shadow-sm"
+                className="text-xs bg-white text-brand-navy border border-gray-200 rounded-lg px-3 py-1.5 shadow-card"
               >
                 <option value="tutte">Tutte le piattaforme</option>
                 <option value="mobile">Mobile</option>
                 <option value="desktop">Desktop</option>
               </select>
             </div>
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+            <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
@@ -731,7 +729,7 @@ export default function AdminDashboard() {
                         onClick={() => toggleUtente(u.user_id)}
                         className={`hover:bg-gray-50 cursor-pointer ${utenteEspanso === u.user_id ? 'bg-[#F0FDFB]' : ''}`}
                       >
-                        <td className="px-4 py-3 font-medium text-[#0D1B2A]">
+                        <td className="px-4 py-3 font-medium text-brand-navy">
                           <span className="mr-2 text-gray-400">{utenteEspanso === u.user_id ? '▼' : '▶'}</span>
                           {u.nome_azienda}
                         </td>
@@ -747,12 +745,12 @@ export default function AdminDashboard() {
                           <td colSpan={5} className="px-4 py-4 bg-gray-50 border-t border-gray-100">
                             {dettaglioLoading || !dettaglioUtente ? (
                               <div className="flex justify-center py-6">
-                                <div className="w-5 h-5 border-2 border-[#0E9F8E] border-t-transparent rounded-full animate-spin" />
+                                <div className="w-5 h-5 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
                               </div>
                             ) : (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                                 <div>
-                                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Schermate visitate</h3>
+                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Schermate visitate</h3>
                                   {dettaglioUtente.schermate.length === 0 ? (
                                     <p className="text-gray-400 text-xs">Nessuna</p>
                                   ) : (
@@ -767,7 +765,7 @@ export default function AdminDashboard() {
                                   )}
                                 </div>
                                 <div>
-                                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Feature usate</h3>
+                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Feature usate</h3>
                                   {dettaglioUtente.feature.length === 0 ? (
                                     <p className="text-gray-400 text-xs">Nessuna</p>
                                   ) : (
@@ -782,13 +780,13 @@ export default function AdminDashboard() {
                                   )}
                                 </div>
                                 <div>
-                                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Preventivi</h3>
+                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Preventivi</h3>
                                   <p className="text-gray-700">
                                     {dettaglioUtente.preventivi_count} creati — €{dettaglioUtente.preventivi_importo.toFixed(2)} totale
                                   </p>
                                 </div>
                                 <div>
-                                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Prodotti digitali</h3>
+                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Prodotti digitali</h3>
                                   <p className="text-gray-700">
                                     {dettaglioUtente.prodotti_creati} creati
                                     {dettaglioUtente.vendite_count > 0 && (
@@ -797,7 +795,7 @@ export default function AdminDashboard() {
                                   </p>
                                 </div>
                                 <div className="md:col-span-2">
-                                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Timeline ultimi eventi</h3>
+                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Timeline ultimi eventi</h3>
                                   {dettaglioUtente.timeline.length === 0 ? (
                                     <p className="text-gray-400 text-xs">Nessun evento</p>
                                   ) : (
@@ -807,7 +805,7 @@ export default function AdminDashboard() {
                                           <span className="text-gray-400 w-32 shrink-0">
                                             {new Date(ev.created_at).toLocaleString('it-IT')}
                                           </span>
-                                          <span className="font-mono text-[#0D1B2A]">{ev.evento}</span>
+                                          <span className="font-mono text-brand-navy">{ev.evento}</span>
                                           {ev.schermata && (
                                             <span className="text-gray-400">({ev.schermata})</span>
                                           )}
@@ -830,13 +828,13 @@ export default function AdminDashboard() {
         )}
 
         {eventiFrequenti.length === 0 && usaggioEndpoint.length === 0 && (
-          <div className="text-center py-16 text-gray-400">
+          <div className="text-center py-16 text-brand-muted-2">
             <p className="text-lg font-medium">Nessun dato ancora</p>
             <p className="text-sm mt-1">I dati appariranno dopo le prime interazioni degli utenti</p>
           </div>
         )}
 
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 }
