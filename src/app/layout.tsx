@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
+import TermlyInit from "@/components/TermlyInit";
+
+const TERMLY_WEBSITE_UUID = "520c2b0c-0f03-4ed3-a2e6-09768566ac2e";
+const TERMLY_SCRIPT_SRC = `https://app.termly.io/resource-blocker/${TERMLY_WEBSITE_UUID}?autoBlock=on`;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,14 +67,12 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${jakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {/* Termly Cookie Consent Manager — deve caricarsi prima di qualsiasi
-           altro script di terze parti (Google Analytics, Meta Pixel, ecc.)
-           in modo da poterli bloccare finché l'utente non dà il consenso. */}
-        <Script
-          src="https://app.termly.io/resource-blocker/520c2b0c-0f03-4ed3-a2e6-09768566ac2e?autoBlock=on"
-          strategy="beforeInteractive"
-        />
+        {/* Termly CMP — primo script in pagina per Auto Blocker e banner consenso */}
+        <Script src={TERMLY_SCRIPT_SRC} strategy="beforeInteractive" />
         {children}
+        <Suspense fallback={null}>
+          <TermlyInit />
+        </Suspense>
       </body>
     </html>
   );
