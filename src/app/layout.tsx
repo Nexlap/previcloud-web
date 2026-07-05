@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import CookieConsent from "@/components/CookieConsent";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,7 +70,6 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
         {children}
-        <CookieConsent />
       </body>
     </html>
   );
