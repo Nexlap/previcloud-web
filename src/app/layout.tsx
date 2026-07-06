@@ -55,6 +55,11 @@ export const metadata: Metadata = {
     "SaaS italiano",
     "preventivo PDF",
   ],
+  verification: {
+    other: {
+      "msvalidate.01": "ACFE2DDFFEE4AFDDDFEA57CC6E07D0DD",
+    },
+  },
 };
 
 export default function RootLayout({
