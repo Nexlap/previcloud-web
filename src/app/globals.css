@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
   /* ── Brand tokens — unica fonte di verità per landing + dashboard ── */
@@ -94,4 +95,17 @@ body {
    da tutta la landing, senza toccare il font della dashboard (Geist). */
 .landing-root {
   font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tipografia articoli blog — prose con colori brand */
+.blog-prose {
+  @apply prose prose-slate max-w-none;
+  @apply prose-headings:font-extrabold prose-headings:tracking-tight prose-headings:text-slate-900;
+  @apply prose-p:text-slate-700 prose-p:leading-relaxed;
+  @apply prose-a:text-teal-brand prose-a:font-semibold prose-a:no-underline hover:prose-a:text-teal-dark;
+  @apply prose-strong:text-slate-900;
+  @apply prose-blockquote:border-teal-brand prose-blockquote:text-slate-600;
+  @apply prose-code:text-teal-dark prose-code:bg-teal-brand/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none;
+  @apply prose-th:bg-slate-50 prose-th:text-slate-900;
+  @apply prose-td:text-slate-700;
 }

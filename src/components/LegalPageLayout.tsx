@@ -43,6 +43,9 @@ export function LegalPageLayout({ title, children }: Props) {
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 px-5 text-center sm:flex-row sm:justify-between sm:text-left">
           <BrandLogo className="text-sm" />
           <nav className="flex gap-4 text-sm text-[#6B7280]">
+            <Link href="/blog" className="hover:text-[#0E9F8E] transition-colors">
+              Blog
+            </Link>
             <Link href="/termini" className="hover:text-[#0E9F8E] transition-colors">
               Termini
             </Link>

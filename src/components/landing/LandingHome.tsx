@@ -75,6 +75,7 @@ export default function LandingHome() {
             <a href="#funzionalita" className="hover:text-teal-brand transition-colors">Funzionalità</a>
             <a href="#piattaforme" className="hover:text-teal-brand transition-colors">Dispositivi</a>
             <Link href="/faq" className="hover:text-teal-brand transition-colors">Domande Frequenti</Link>
+            <Link href="/blog" className="hover:text-teal-brand transition-colors">Blog</Link>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-3">
@@ -598,6 +599,7 @@ export default function LandingHome() {
               <a href="#problema" className="hover:text-white transition-colors">Il problema</a>
               <a href="#funzionalita" className="hover:text-white transition-colors">Funzionalità</a>
               <Link href="/faq" className="hover:text-white transition-colors">FAQ</Link>
+              <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
             </div>
           </div>
 
