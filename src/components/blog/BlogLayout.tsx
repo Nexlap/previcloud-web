@@ -10,7 +10,7 @@ export function BlogLayout({ children }: BlogLayoutProps) {
   return (
     <div className="landing-root min-h-screen bg-[#FAFAF9] text-slate-800 flex flex-col">
       <header className="border-b border-slate-200 bg-white/90 backdrop-blur-sm sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5 group">
             <Image
               src="/previcloud-logo.jpg"
@@ -44,7 +44,7 @@ export function BlogLayout({ children }: BlogLayoutProps) {
       <main className="flex-1">{children}</main>
 
       <footer className="border-t border-slate-200 bg-white py-8 mt-auto">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
           <Link href="/" className="font-extrabold text-slate-900 hover:opacity-90">
             Previ<span className="text-teal-brand">Cloud</span>
           </Link>

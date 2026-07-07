@@ -1,6 +1,9 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { estimateReadingTime, formatBlogDate } from "./blogFormat";
+
+export { estimateReadingTime, formatBlogDate } from "./blogFormat";
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog");
 
@@ -18,7 +21,9 @@ export type BlogPost = BlogPostFrontmatter & {
   content: string;
 };
 
-export type BlogPostMeta = BlogPostFrontmatter;
+export type BlogPostMeta = BlogPostFrontmatter & {
+  readingTime: number;
+};
 
 function parsePost(filename: string): BlogPost {
   const filePath = path.join(BLOG_DIR, filename);
@@ -43,8 +48,8 @@ export function getAllPosts(): BlogPostMeta[] {
 
   return files
     .map((filename) => {
-      const { content: _content, ...meta } = parsePost(filename);
-      return meta;
+      const { content, ...meta } = parsePost(filename);
+      return { ...meta, readingTime: estimateReadingTime(content) };
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
@@ -74,12 +79,4 @@ export function getAllSlugs(): string[] {
 
 export function getPostOgImage(post: BlogPostFrontmatter): string {
   return post.ogImage ?? DEFAULT_OG_IMAGE;
-}
-
-export function formatBlogDate(date: string): string {
-  return new Intl.DateTimeFormat("it-IT", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(date));
 }

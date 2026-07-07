@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Calendar } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { BlogLayout } from "@/components/blog/BlogLayout";
-import { formatBlogDate, getAllPosts } from "@/lib/blog";
+import { BlogIndexClient } from "@/components/blog/BlogIndexClient";
+import { getAllPosts } from "@/lib/blog";
 
 const SITE_URL = "https://previcloud.it";
 
@@ -33,8 +34,19 @@ export default function BlogIndexPage() {
 
   return (
     <BlogLayout>
-      <div className="py-12 md:py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+      {/* Masthead editoriale */}
+      <div className="relative overflow-hidden border-b border-slate-100 bg-white">
+        <div
+          aria-hidden
+          className="absolute inset-0 pointer-events-none opacity-[0.05]"
+          style={{
+            backgroundImage: "radial-gradient(#0E9F8E 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-teal-brand/10 blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-14 sm:pt-14 sm:pb-16">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-sm font-semibold text-teal-brand hover:text-teal-dark mb-8 transition-colors group"
@@ -43,45 +55,25 @@ export default function BlogIndexPage() {
             Torna alla Homepage
           </Link>
 
-          <div className="text-left mb-12">
+          <div>
             <span className="text-xs font-bold uppercase tracking-widest text-teal-brand">
-              Risorse
+              Guide per il mestiere
             </span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 mt-2 tracking-tight">
-              Blog PreviCloud
+            <h1 className="font-serif-editorial mt-3 text-4xl sm:text-5xl md:text-6xl font-semibold text-slate-900 tracking-tight leading-[1.05] max-w-3xl">
+              Il blog di PreviCloud
             </h1>
-            <p className="text-slate-600 mt-4 text-sm sm:text-base leading-relaxed max-w-2xl">
-              Guide, consigli e novità per artigiani e freelance che vogliono creare
-              preventivi professionali, incassare online e risparmiare tempo in cantiere.
+            <p className="text-slate-600 mt-5 text-base sm:text-lg leading-relaxed max-w-2xl">
+              Guide pratiche, senza fronzoli, per artigiani, freelance e content creator che
+              vogliono preventivi chiari, incassi puntuali e meno tempo perso alla scrivania.
             </p>
           </div>
+        </div>
+      </div>
 
+      <div className="py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {posts.length > 0 ? (
-            <ul className="space-y-4">
-              {posts.map((post) => (
-                <li key={post.slug}>
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="group block bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm hover:shadow-md hover:border-teal-brand/30 transition-all"
-                  >
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-3">
-                      <Calendar className="h-3.5 w-3.5 text-teal-brand" />
-                      <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
-                    </div>
-                    <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 group-hover:text-teal-brand transition-colors">
-                      {post.title}
-                    </h2>
-                    <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-                      {post.description}
-                    </p>
-                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-teal-brand group-hover:text-teal-dark transition-colors">
-                      Leggi l&apos;articolo
-                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <BlogIndexClient posts={posts} />
           ) : (
             <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-600">
               Nessun articolo pubblicato al momento. Torna presto!
