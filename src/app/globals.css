@@ -97,22 +97,37 @@ body {
   font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Font editoriale del blog — Fraunces, riservato a titoli e numeri (vedi
-   layout.tsx), usato qui per l'identità "magazine" distinta dal resto del
-   sito, che resta in Plus Jakarta Sans. */
+/* ── Blog "registro delle guide" ──────────────────────────────────────────
+   Tre ruoli tipografici: Fraunces (display), Plus Jakarta Sans (testo,
+   ereditata da .landing-root) e Geist Mono (numeri di protocollo e meta,
+   l'estetica del registro documenti). */
 .font-serif-editorial {
   font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
 }
 
+.font-mono-meta {
+  font-family: var(--font-geist-mono), ui-monospace, "Courier New", monospace;
+  letter-spacing: 0.08em;
+}
+
+/* Rivelazione progressiva delle righe del registro. L'opacità parte da 0
+   solo quando il motion è permesso, così senza animazioni resta tutto visibile. */
+@media (prefers-reduced-motion: no-preference) {
+  .blog-reveal {
+    opacity: 0;
+    animation: previcloudFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
 /* Tipografia articoli blog — prose con colori brand */
 .blog-prose {
+  counter-reset: blog-section;
   @apply prose prose-slate max-w-none;
   @apply prose-headings:font-semibold prose-headings:tracking-tight prose-headings:text-slate-900;
   @apply prose-p:text-slate-700 prose-p:leading-relaxed;
   @apply prose-a:text-teal-brand prose-a:font-semibold prose-a:no-underline hover:prose-a:text-teal-dark;
   @apply prose-strong:text-slate-900;
   @apply prose-code:text-teal-dark prose-code:bg-teal-brand/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none;
-  @apply prose-th:bg-teal-brand/[0.07] prose-th:text-slate-900 prose-th:text-xs prose-th:uppercase prose-th:tracking-wide prose-th:font-bold;
   @apply prose-td:text-slate-700 prose-td:align-top;
 }
 
@@ -122,21 +137,30 @@ body {
   font-family: var(--font-fraunces), Georgia, "Times New Roman", serif;
 }
 
+/* Le sezioni dell'articolo sono numerate come le voci di un capitolato;
+   il sommario laterale riprende gli stessi numeri. */
 .blog-prose h2 {
-  @apply mt-14 scroll-mt-24;
+  @apply mt-14 scroll-mt-28;
+  counter-increment: blog-section;
 }
 
-/* Capolettera sul primo paragrafo dell'articolo — unico accento
-   "editoriale" della pagina, il resto del testo resta discreto. */
-.blog-prose > p:first-of-type::first-letter {
-  font-family: var(--font-fraunces), Georgia, serif;
+.blog-prose h2::before {
+  content: counter(blog-section, decimal-leading-zero);
+  display: block;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
   font-weight: 600;
-  font-size: 3.4em;
-  line-height: 0.85;
-  float: left;
-  padding-right: 0.1em;
-  padding-top: 0.03em;
+  letter-spacing: 0.14em;
   color: var(--color-brand-teal);
+  margin-bottom: 0.45rem;
+}
+
+/* Tabelle come prospetti di preventivo: intestazione mono, righe di registro */
+.blog-prose th {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  @apply bg-[#0D1B2A] text-white uppercase font-semibold;
 }
 
 .blog-prose tr {
@@ -144,10 +168,15 @@ body {
 }
 
 .blog-prose tbody tr:nth-child(even) {
-  @apply bg-slate-50/60;
+  @apply bg-slate-50/70;
 }
 
 .blog-prose th,
 .blog-prose td {
   @apply px-4 py-3;
+}
+
+/* Separatori dei fac-simile documento dentro gli articoli */
+.blog-prose hr {
+  @apply my-10 border-slate-200;
 }

@@ -1,5 +1,4 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import { Lightbulb } from "lucide-react";
 import { slugify } from "@/lib/slugify";
 
 function getNodeText(node: ReactNode): string {
@@ -33,17 +32,18 @@ export const blogMdxComponents = {
     );
   },
   table: (props: ComponentPropsWithoutRef<"table">) => (
-    <div className="my-8 overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
+    <div className="my-8 overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
       <table className="w-full text-sm !my-0" {...props} />
     </div>
   ),
+  // I blockquote degli articoli sono i riquadri "In breve": resi come nota
+  // di registro con filo teal, in linea con il resto del blog.
   blockquote: (props: ComponentPropsWithoutRef<"blockquote">) => (
-    <div className="not-prose my-8 flex gap-3 rounded-2xl bg-teal-brand/[0.06] border border-teal-brand/20 px-5 py-4">
-      <Lightbulb className="h-5 w-5 text-teal-brand shrink-0 mt-0.5" />
+    <aside className="not-prose my-8 rounded-xl border border-teal-brand/25 border-l-4 border-l-teal-brand bg-teal-brand/[0.05] px-5 py-4 sm:px-6 sm:py-5">
       <blockquote
-        className="text-[15px] text-slate-700 leading-relaxed [&>p]:m-0 [&_strong]:text-slate-900"
+        className="text-[15px] leading-relaxed text-slate-700 [&>p]:m-0 [&_strong]:text-teal-dark"
         {...props}
       />
-    </div>
+    </aside>
   ),
 };

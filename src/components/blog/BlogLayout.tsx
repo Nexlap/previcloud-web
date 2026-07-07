@@ -9,6 +9,12 @@ type BlogLayoutProps = {
 export function BlogLayout({ children }: BlogLayoutProps) {
   return (
     <div className="landing-root min-h-screen bg-[#FAFAF9] text-slate-800 flex flex-col">
+      <a
+        href="#contenuto"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-teal-brand focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white"
+      >
+        Salta al contenuto
+      </a>
       <header className="border-b border-slate-200 bg-white/90 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2.5 group">
@@ -41,7 +47,7 @@ export function BlogLayout({ children }: BlogLayoutProps) {
         </div>
       </header>
 
-      <main className="flex-1">{children}</main>
+      <main id="contenuto" className="flex-1">{children}</main>
 
       <footer className="border-t border-slate-200 bg-white py-8 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">

@@ -34,48 +34,81 @@ export default function BlogIndexPage() {
 
   return (
     <BlogLayout>
-      {/* Masthead editoriale */}
-      <div className="relative overflow-hidden border-b border-slate-100 bg-white">
+      {/* Masthead: la copertina del registro */}
+      <div className="relative overflow-hidden bg-[#0D1B2A] text-white">
         <div
           aria-hidden
-          className="absolute inset-0 pointer-events-none opacity-[0.05]"
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{
             backgroundImage: "radial-gradient(#0E9F8E 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
+            backgroundSize: "22px 22px",
           }}
         />
-        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-teal-brand/10 blur-3xl pointer-events-none" />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-teal-brand/20 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-40 -left-24 h-80 w-80 rounded-full bg-teal-dark/25 blur-3xl"
+        />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-14 sm:pt-14 sm:pb-16">
+        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-10 sm:px-6 sm:pb-16 sm:pt-12">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-teal-brand hover:text-teal-dark mb-8 transition-colors group"
+            className="group inline-flex items-center gap-2 text-sm font-semibold text-teal-100/80 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-teal-brand"
           >
-            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft aria-hidden className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             Torna alla Homepage
           </Link>
 
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-teal-brand">
-              Guide per il mestiere
-            </span>
-            <h1 className="font-serif-editorial mt-3 text-4xl sm:text-5xl md:text-6xl font-semibold text-slate-900 tracking-tight leading-[1.05] max-w-3xl">
-              Il blog di PreviCloud
-            </h1>
-            <p className="text-slate-600 mt-5 text-base sm:text-lg leading-relaxed max-w-2xl">
-              Guide pratiche, senza fronzoli, per artigiani, freelance e content creator che
-              vogliono preventivi chiari, incassi puntuali e meno tempo perso alla scrivania.
-            </p>
+          <div className="mt-10 flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <span className="font-mono-meta text-[0.7rem] font-semibold uppercase text-teal-brand">
+                Registro guide · PreviCloud
+              </span>
+              <h1 className="font-serif-editorial mt-4 text-balance text-4xl font-semibold leading-[1.04] tracking-tight sm:text-5xl md:text-6xl">
+                Il mestiere,
+                <br />
+                messo per iscritto.
+              </h1>
+              <p className="mt-5 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
+                Guide pratiche su preventivi, firma digitale e incassi per artigiani,
+                freelance e creator. Scritte come i tuoi documenti di lavoro: chiare,
+                numerate, senza fronzoli.
+              </p>
+            </div>
+
+            <dl className="font-mono-meta flex gap-8 text-left lg:pb-2">
+              <div>
+                <dt className="text-[0.62rem] uppercase text-slate-400">Guide</dt>
+                <dd className="font-serif-editorial mt-1 text-3xl font-semibold text-white">
+                  {String(posts.length).padStart(2, "0")}
+                </dd>
+              </div>
+              <div className="border-l border-white/10 pl-8">
+                <dt className="text-[0.62rem] uppercase text-slate-400">Edizione</dt>
+                <dd className="font-serif-editorial mt-1 text-3xl font-semibold text-white">
+                  2026
+                </dd>
+              </div>
+              <div className="border-l border-white/10 pl-8">
+                <dt className="text-[0.62rem] uppercase text-slate-400">Costo</dt>
+                <dd className="font-serif-editorial mt-1 text-3xl font-semibold text-teal-brand">
+                  Zero
+                </dd>
+              </div>
+            </dl>
           </div>
         </div>
       </div>
 
-      <div className="py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="py-10 md:py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
           {posts.length > 0 ? (
             <BlogIndexClient posts={posts} />
           ) : (
-            <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center text-slate-600">
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-600">
               Nessun articolo pubblicato al momento. Torna presto!
             </div>
           )}

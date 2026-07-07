@@ -18,3 +18,8 @@ export function formatBlogDate(date: string): string {
     year: "numeric",
   }).format(new Date(date));
 }
+
+/** "N. 04" — numero di protocollo della guida, stile registro documenti */
+export function formatGuideNumber(guideNumber: number): string {
+  return `N. ${String(guideNumber).padStart(2, "0")}`;
+}

@@ -23,6 +23,8 @@ export type BlogPost = BlogPostFrontmatter & {
 
 export type BlogPostMeta = BlogPostFrontmatter & {
   readingTime: number;
+  /** Numero di protocollo della guida (1 = la più vecchia), stile registro */
+  guideNumber: number;
 };
 
 function parsePost(filename: string): BlogPost {
@@ -46,12 +48,23 @@ export function getAllPosts(): BlogPostMeta[] {
     .readdirSync(BLOG_DIR)
     .filter((filename) => filename.endsWith(".mdx") || filename.endsWith(".md"));
 
-  return files
+  const posts = files
     .map((filename) => {
       const { content, ...meta } = parsePost(filename);
       return { ...meta, readingTime: estimateReadingTime(content) };
     })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Ordine cronologico ascendente (slug come spareggio) per assegnare il
+    // numero di protocollo: la guida più vecchia è la N. 1, come in un registro.
+    .sort(
+      (a, b) =>
+        new Date(a.date).getTime() - new Date(b.date).getTime() ||
+        a.slug.localeCompare(b.slug)
+    )
+    .map((meta, index) => ({ ...meta, guideNumber: index + 1 }));
+
+  return posts.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime() || b.guideNumber - a.guideNumber
+  );
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
