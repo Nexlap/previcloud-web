@@ -1,0 +1,21 @@
+warning: in the working copy of 'src/app/layout.tsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/src/app/layout.tsx b/src/app/layout.tsx[m
+[1mindex a775665..b43ee95 100644[m
+[1m--- a/src/app/layout.tsx[m
+[1m+++ b/src/app/layout.tsx[m
+[36m@@ -5,6 +5,7 @@[m [mimport { Suspense } from "react";[m
+ import "./globals.css";[m
+ import TermlyInit from "@/components/TermlyInit";[m
+ import GoogleAnalytics from "@/components/GoogleAnalytics";[m
+[32m+[m[32mimport MetaPixel from "@/components/MetaPixel";[m
+ [m
+ const TERMLY_WEBSITE_UUID = "520c2b0c-0f03-4ed3-a2e6-09768566ac2e";[m
+ const TERMLY_SCRIPT_SRC = `https://app.termly.io/resource-blocker/${TERMLY_WEBSITE_UUID}?autoBlock=on`;[m
+[36m@@ -79,6 +80,7 @@[m [mexport default function RootLayout({[m
+           <TermlyInit />[m
+         </Suspense>[m
+         <GoogleAnalytics />[m
+[32m+[m[32m        <MetaPixel />[m
+       </body>[m
+     </html>[m
+   );[m

@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import "./globals.css";
 import TermlyInit from "@/components/TermlyInit";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import MetaPixel from "@/components/MetaPixel";
 
 const TERMLY_WEBSITE_UUID = "520c2b0c-0f03-4ed3-a2e6-09768566ac2e";
 const TERMLY_SCRIPT_SRC = `https://app.termly.io/resource-blocker/${TERMLY_WEBSITE_UUID}?autoBlock=on`;
@@ -79,6 +80,7 @@ export default function RootLayout({
           <TermlyInit />
         </Suspense>
         <GoogleAnalytics />
+        <MetaPixel />
       </body>
     </html>
   );
