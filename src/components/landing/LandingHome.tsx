@@ -15,17 +15,29 @@ import {
   CreditCard,
   FileCheck,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Menu,
+  X
 } from "lucide-react";
 import BetaSignupModal from "./BetaSignupModal";
 import InteractiveShowcase from "./InteractiveShowcase";
+
+const NAV_LINKS = [
+  { href: "#problema", label: "Il problema" },
+  { href: "#funzionalita", label: "Funzionalità" },
+  { href: "#piattaforme", label: "Dispositivi" },
+  { href: "/faq", label: "Domande Frequenti" },
+  { href: "/blog", label: "Blog" },
+];
 
 export default function LandingHome() {
   const [isBetaModalOpen, setIsBetaModalOpen] = useState(false);
   const [betaInitialProfession, setBetaInitialProfession] = useState("");
   const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const openBetaWithProfession = (prof: string) => {
+    setIsMobileMenuOpen(false);
     setBetaInitialProfession(prof);
     setIsBetaModalOpen(true);
   };
@@ -78,7 +90,8 @@ export default function LandingHome() {
             <Link href="/blog" className="hover:text-teal-brand transition-colors">Blog</Link>
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Desktop actions */}
+          <div className="hidden md:flex items-center gap-2 sm:gap-3">
             <Link
               href="/login"
               className="px-4 py-2.5 text-slate-700 hover:text-teal-brand rounded-full font-bold text-sm transition-colors cursor-pointer"
@@ -92,7 +105,66 @@ export default function LandingHome() {
               Iscriviti alla Beta
             </button>
           </div>
+
+          {/* Mobile menu toggle */}
+          <button
+            onClick={() => setIsMobileMenuOpen((open) => !open)}
+            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            aria-label={isMobileMenuOpen ? "Chiudi il menu" : "Apri il menu"}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-nav-menu"
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </header>
+
+        {/* Mobile menu panel */}
+        {isMobileMenuOpen && (
+          <div
+            id="mobile-nav-menu"
+            className="md:hidden relative z-40 w-full max-w-7xl mx-auto px-4 sm:px-6 pb-4"
+          >
+            <nav className="flex flex-col gap-1 bg-white border border-slate-200 rounded-2xl shadow-lg p-3">
+              {NAV_LINKS.map((link) =>
+                link.href.startsWith("#") ? (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="px-4 py-3 rounded-xl text-slate-700 font-semibold hover:bg-slate-50 hover:text-teal-brand transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="px-4 py-3 rounded-xl text-slate-700 font-semibold hover:bg-slate-50 hover:text-teal-brand transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                )
+              )}
+
+              <div className="h-px bg-slate-100 my-2" />
+
+              <Link
+                href="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-xl text-slate-700 font-semibold hover:bg-slate-50 hover:text-teal-brand transition-colors"
+              >
+                Accedi
+              </Link>
+              <button
+                onClick={() => openBetaWithProfession("")}
+                className="mt-1 px-4 py-3 bg-teal-brand hover:bg-teal-dark text-white rounded-xl font-bold text-sm text-center transition-colors cursor-pointer"
+              >
+                Iscriviti alla Beta
+              </button>
+            </nav>
+          </div>
+        )}
 
         {/* HERO SECTION */}
         <section className="relative z-10 flex flex-1 items-center">
