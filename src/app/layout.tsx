@@ -56,11 +56,29 @@ export const metadata: Metadata = {
     "SaaS italiano",
     "preventivo PDF",
   ],
+  openGraph: {
+    siteName: "PreviCloud",
+  },
   verification: {
     other: {
       "msvalidate.01": "ACFE2DDFFEE4AFDDDFEA57CC6E07D0DD",
     },
   },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "PreviCloud",
+  url: SITE_URL,
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "PreviCloud",
+  url: SITE_URL,
+  logo: `${SITE_URL}/previcloud-logo.jpg`,
 };
 
 export default function RootLayout({
@@ -74,6 +92,16 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${jakarta.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
+        />
         <Script src={TERMLY_SCRIPT_SRC} strategy="afterInteractive" />
         {children}
         <Suspense fallback={null}>
