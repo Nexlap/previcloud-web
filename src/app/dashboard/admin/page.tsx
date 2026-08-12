@@ -222,7 +222,21 @@ export default function AdminDashboard() {
   const [salvandoTrial, setSalvandoTrial] = useState(false)
   const [trialSalvatoMsg, setTrialSalvatoMsg] = useState<string | null>(null)
   const [periodoGiorni, setPeriodoGiorni] = useState(7)
-  const [tabAttiva, setTabAttiva] = useState<'panoramica' | 'utenti' | 'vendite' | 'costi'>('panoramica')
+  const [tabAttiva, setTabAttiva] = useState<'panoramica' | 'utenti' | 'vendite' | 'costi' | 'ticket'>('panoramica')
+  const [modalCreaUtenteAperto, setModalCreaUtenteAperto] = useState(false)
+  const [nuovoEmail, setNuovoEmail] = useState('')
+  const [nuovoPassword, setNuovoPassword] = useState('')
+  const [nuovoTelefono, setNuovoTelefono] = useState('')
+  const [nuovoNomeAzienda, setNuovoNomeAzienda] = useState('')
+  const [creandoUtente, setCreandoUtente] = useState(false)
+  const [creaUtenteMsg, setCreaUtenteMsg] = useState<string | null>(null)
+  const [segnalazioni, setSegnalazioni] = useState<Array<{
+    id: string; user_id: string | null; tipo: string; titolo: string;
+    descrizione: string; schermata: string | null; piattaforma: string | null;
+    priorita: string | null; stato: string | null; screenshot_url: string | null;
+    created_at: string; nome_azienda: string | null;
+  }>>([])
+  const [caricandoTicket, setCaricandoTicket] = useState(false)
 
   const eventiFiltrati = useMemo(
     () => filtraEventiPerPiattaforma(eventiCompleti, filtroPiattaforma),
@@ -245,6 +259,11 @@ export default function AdminDashboard() {
       void caricaDati()
     }
   }, [accesso, periodoGiorni])
+  useEffect(() => {
+    if (tabAttiva === 'ticket' && segnalazioni.length === 0) {
+      void caricaSegnalazioni()
+    }
+  }, [tabAttiva])
 
   async function checkAdmin() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -390,6 +409,63 @@ export default function AdminDashboard() {
       setTrialSalvatoMsg(e instanceof Error ? e.message : 'Errore')
     } finally {
       setSalvandoTrial(false)
+    }
+  }
+
+  async function caricaSegnalazioni() {
+    setCaricandoTicket(true)
+    try {
+      const res = await fetch('/api/admin/segnalazioni')
+      const data = await res.json()
+      setSegnalazioni(data.segnalazioni || [])
+    } catch (e) {
+      console.error('Errore caricamento segnalazioni:', e)
+    } finally {
+      setCaricandoTicket(false)
+    }
+  }
+
+  async function aggiornaStatoTicket(id: string, stato: string) {
+    await fetch('/api/admin/segnalazioni', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, stato }),
+    })
+    void caricaSegnalazioni()
+  }
+
+  async function creaUtente() {
+    setCreandoUtente(true)
+    setCreaUtenteMsg(null)
+    try {
+      const res = await fetch('/api/admin/crea-utente', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: nuovoEmail,
+          password: nuovoPassword,
+          telefono: nuovoTelefono || null,
+          nome_azienda: nuovoNomeAzienda || null,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Errore creazione')
+      }
+      setCreaUtenteMsg('Utente creato! Email di benvenuto inviata.')
+      setNuovoEmail('')
+      setNuovoPassword('')
+      setNuovoTelefono('')
+      setNuovoNomeAzienda('')
+      setTimeout(() => {
+        setModalCreaUtenteAperto(false)
+        setCreaUtenteMsg(null)
+        void caricaDati()
+      }, 2000)
+    } catch (e) {
+      setCreaUtenteMsg(e instanceof Error ? e.message : 'Errore')
+    } finally {
+      setCreandoUtente(false)
     }
   }
 
@@ -562,6 +638,7 @@ export default function AdminDashboard() {
           { id: 'utenti', label: 'Utenti' },
           { id: 'vendite', label: 'Vendite' },
           { id: 'costi', label: 'Costi AI' },
+          { id: 'ticket', label: 'Ticket' },
         ] as const).map((tab) => (
           <button
             key={tab.id}
@@ -774,185 +851,197 @@ export default function AdminDashboard() {
         )}
 
         {/* Utenti attivi */}
-        {tabAttiva === 'utenti' && utentiAttivi.length > 0 && (
+        {tabAttiva === 'utenti' && (
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
                 Utenti attivi
               </h2>
-              <select
-                value={filtroPiattaforma}
-                onChange={(e) =>
-                  setFiltroPiattaforma(e.target.value as FiltroPiattaforma)
-                }
-                className="text-xs bg-white text-brand-navy border border-gray-200 rounded-lg px-3 py-1.5 shadow-card"
-              >
-                <option value="tutte">Tutte le piattaforme</option>
-                <option value="mobile">Mobile</option>
-                <option value="desktop">Desktop</option>
-              </select>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setModalCreaUtenteAperto(true)}
+                  className="text-xs font-medium bg-brand-teal text-white rounded-lg px-3 py-1.5 shadow-card hover:bg-brand-teal/90"
+                >
+                  + Crea utente
+                </button>
+                <select
+                  value={filtroPiattaforma}
+                  onChange={(e) =>
+                    setFiltroPiattaforma(e.target.value as FiltroPiattaforma)
+                  }
+                  className="text-xs bg-white text-brand-navy border border-gray-200 rounded-lg px-3 py-1.5 shadow-card"
+                >
+                  <option value="tutte">Tutte le piattaforme</option>
+                  <option value="mobile">Mobile</option>
+                  <option value="desktop">Desktop</option>
+                </select>
+              </div>
             </div>
-            <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-100">
-                  <tr>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Azienda</th>
-                    <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Preventivi</th>
-                    <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Sessioni</th>
-                    <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Costo AI</th>
-                    <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Ultimo accesso</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {utentiAttivi.map(u => (
-                    <Fragment key={u.user_id}>
-                      <tr
-                        onClick={() => toggleUtente(u.user_id)}
-                        className={`hover:bg-gray-50 cursor-pointer ${utenteEspanso === u.user_id ? 'bg-[#F0FDFB]' : ''}`}
-                      >
-                        <td className="px-4 py-3 font-medium text-brand-navy">
-                          <span className="mr-2 text-gray-400">{utenteEspanso === u.user_id ? '▼' : '▶'}</span>
-                          {u.nome_azienda}
-                          {u.plan === 'beta' && u.trial_ends_at && new Date(u.trial_ends_at) < new Date() && (
-                            <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
-                              Trial scaduto
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right text-gray-700">{u.num_preventivi}</td>
-                        <td className="px-4 py-3 text-right text-gray-700">{u.numero_sessioni}</td>
-                        <td className="px-4 py-3 text-right text-orange-500">€{u.costo_euro.toFixed(4)}</td>
-                        <td className="px-4 py-3 text-right text-gray-400 text-xs">
-                          {new Date(u.ultimo_accesso).toLocaleDateString('it-IT')}
-                        </td>
-                      </tr>
-                      {utenteEspanso === u.user_id && (
-                        <tr>
-                          <td colSpan={5} className="px-4 py-4 bg-gray-50 border-t border-gray-100">
-                            {dettaglioLoading || !dettaglioUtente ? (
-                              <div className="flex justify-center py-6">
-                                <div className="w-5 h-5 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
-                              </div>
-                            ) : (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                                <div>
-                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Schermate visitate</h3>
-                                  {dettaglioUtente.schermate.length === 0 ? (
-                                    <p className="text-gray-400 text-xs">Nessuna</p>
-                                  ) : (
-                                    <ul className="space-y-1">
-                                      {dettaglioUtente.schermate.map((s) => (
-                                        <li key={s.nome} className="flex justify-between text-gray-700">
-                                          <span className="font-mono text-xs">{s.nome}</span>
-                                          <span className="font-semibold">{s.count}</span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
+            {utentiAttivi.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center py-6">Nessun utente attivo</p>
+            ) : (
+              <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Azienda</th>
+                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Preventivi</th>
+                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Sessioni</th>
+                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Costo AI</th>
+                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Ultimo accesso</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {utentiAttivi.map(u => (
+                      <Fragment key={u.user_id}>
+                        <tr
+                          onClick={() => toggleUtente(u.user_id)}
+                          className={`hover:bg-gray-50 cursor-pointer ${utenteEspanso === u.user_id ? 'bg-[#F0FDFB]' : ''}`}
+                        >
+                          <td className="px-4 py-3 font-medium text-brand-navy">
+                            <span className="mr-2 text-gray-400">{utenteEspanso === u.user_id ? '▼' : '▶'}</span>
+                            {u.nome_azienda}
+                            {u.plan === 'beta' && u.trial_ends_at && new Date(u.trial_ends_at) < new Date() && (
+                              <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                                Trial scaduto
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-right text-gray-700">{u.num_preventivi}</td>
+                          <td className="px-4 py-3 text-right text-gray-700">{u.numero_sessioni}</td>
+                          <td className="px-4 py-3 text-right text-orange-500">€{u.costo_euro.toFixed(4)}</td>
+                          <td className="px-4 py-3 text-right text-gray-400 text-xs">
+                            {new Date(u.ultimo_accesso).toLocaleDateString('it-IT')}
+                          </td>
+                        </tr>
+                        {utenteEspanso === u.user_id && (
+                          <tr>
+                            <td colSpan={5} className="px-4 py-4 bg-gray-50 border-t border-gray-100">
+                              {dettaglioLoading || !dettaglioUtente ? (
+                                <div className="flex justify-center py-6">
+                                  <div className="w-5 h-5 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
                                 </div>
-                                <div>
-                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Feature usate</h3>
-                                  {dettaglioUtente.feature.length === 0 ? (
-                                    <p className="text-gray-400 text-xs">Nessuna</p>
-                                  ) : (
-                                    <ul className="space-y-1">
-                                      {dettaglioUtente.feature.map((f) => (
-                                        <li key={f.nome} className="flex justify-between text-gray-700">
-                                          <span className="font-mono text-xs">{f.nome}</span>
-                                          <span className="font-semibold">{f.count}</span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-                                <div>
-                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Preventivi</h3>
-                                  <p className="text-gray-700">
-                                    {dettaglioUtente.preventivi_count} creati — €{dettaglioUtente.preventivi_importo.toFixed(2)} totale
-                                  </p>
-                                </div>
-                                <div>
-                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Prodotti digitali</h3>
-                                  <p className="text-gray-700">
-                                    {dettaglioUtente.prodotti_creati} creati
-                                    {dettaglioUtente.vendite_count > 0 && (
-                                      <> — {dettaglioUtente.vendite_count} vendite (€{dettaglioUtente.vendite_incassato.toFixed(2)})</>
+                              ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                  <div>
+                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Schermate visitate</h3>
+                                    {dettaglioUtente.schermate.length === 0 ? (
+                                      <p className="text-gray-400 text-xs">Nessuna</p>
+                                    ) : (
+                                      <ul className="space-y-1">
+                                        {dettaglioUtente.schermate.map((s) => (
+                                          <li key={s.nome} className="flex justify-between text-gray-700">
+                                            <span className="font-mono text-xs">{s.nome}</span>
+                                            <span className="font-semibold">{s.count}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
                                     )}
-                                  </p>
-                                </div>
-                                <div className="md:col-span-2 border-t border-gray-200 pt-4 mt-2">
-                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">
-                                    Periodo di prova
-                                  </h3>
-                                  <div className="flex flex-wrap items-end gap-3">
-                                    <label className="flex flex-col text-xs text-gray-600">
-                                      Inizio
-                                      <input
-                                        type="date"
-                                        value={trialInizioInput}
-                                        onChange={(e) => setTrialInizioInput(e.target.value)}
-                                        className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
-                                      />
-                                    </label>
-                                    <label className="flex flex-col text-xs text-gray-600">
-                                      Fine
-                                      <input
-                                        type="date"
-                                        value={trialFineInput}
-                                        onChange={(e) => setTrialFineInput(e.target.value)}
-                                        className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
-                                      />
-                                    </label>
-                                    <label className="flex items-center gap-2 text-xs text-gray-600 pb-1.5">
-                                      <input
-                                        type="checkbox"
-                                        checked={planBeta}
-                                        onChange={(e) => setPlanBeta(e.target.checked)}
-                                      />
-                                      Piano BETA attivo
-                                    </label>
-                                    <button
-                                      onClick={() => salvaTrial(u.user_id)}
-                                      disabled={salvandoTrial}
-                                      className="rounded-lg bg-brand-teal px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-teal/90 disabled:opacity-50"
-                                    >
-                                      {salvandoTrial ? 'Salvataggio...' : 'Salva'}
-                                    </button>
-                                    {trialSalvatoMsg && (
-                                      <span className="text-xs text-gray-500">{trialSalvatoMsg}</span>
+                                  </div>
+                                  <div>
+                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Feature usate</h3>
+                                    {dettaglioUtente.feature.length === 0 ? (
+                                      <p className="text-gray-400 text-xs">Nessuna</p>
+                                    ) : (
+                                      <ul className="space-y-1">
+                                        {dettaglioUtente.feature.map((f) => (
+                                          <li key={f.nome} className="flex justify-between text-gray-700">
+                                            <span className="font-mono text-xs">{f.nome}</span>
+                                            <span className="font-semibold">{f.count}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Preventivi</h3>
+                                    <p className="text-gray-700">
+                                      {dettaglioUtente.preventivi_count} creati — €{dettaglioUtente.preventivi_importo.toFixed(2)} totale
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Prodotti digitali</h3>
+                                    <p className="text-gray-700">
+                                      {dettaglioUtente.prodotti_creati} creati
+                                      {dettaglioUtente.vendite_count > 0 && (
+                                        <> — {dettaglioUtente.vendite_count} vendite (€{dettaglioUtente.vendite_incassato.toFixed(2)})</>
+                                      )}
+                                    </p>
+                                  </div>
+                                  <div className="md:col-span-2 border-t border-gray-200 pt-4 mt-2">
+                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">
+                                      Periodo di prova
+                                    </h3>
+                                    <div className="flex flex-wrap items-end gap-3">
+                                      <label className="flex flex-col text-xs text-gray-600">
+                                        Inizio
+                                        <input
+                                          type="date"
+                                          value={trialInizioInput}
+                                          onChange={(e) => setTrialInizioInput(e.target.value)}
+                                          className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
+                                        />
+                                      </label>
+                                      <label className="flex flex-col text-xs text-gray-600">
+                                        Fine
+                                        <input
+                                          type="date"
+                                          value={trialFineInput}
+                                          onChange={(e) => setTrialFineInput(e.target.value)}
+                                          className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
+                                        />
+                                      </label>
+                                      <label className="flex items-center gap-2 text-xs text-gray-600 pb-1.5">
+                                        <input
+                                          type="checkbox"
+                                          checked={planBeta}
+                                          onChange={(e) => setPlanBeta(e.target.checked)}
+                                        />
+                                        Piano BETA attivo
+                                      </label>
+                                      <button
+                                        onClick={() => salvaTrial(u.user_id)}
+                                        disabled={salvandoTrial}
+                                        className="rounded-lg bg-brand-teal px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-teal/90 disabled:opacity-50"
+                                      >
+                                        {salvandoTrial ? 'Salvataggio...' : 'Salva'}
+                                      </button>
+                                      {trialSalvatoMsg && (
+                                        <span className="text-xs text-gray-500">{trialSalvatoMsg}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="md:col-span-2">
+                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Timeline ultimi eventi</h3>
+                                    {dettaglioUtente.timeline.length === 0 ? (
+                                      <p className="text-gray-400 text-xs">Nessun evento</p>
+                                    ) : (
+                                      <ul className="space-y-1.5">
+                                        {dettaglioUtente.timeline.map((ev, i) => (
+                                          <li key={i} className="flex items-center gap-3 text-xs text-gray-600">
+                                            <span className="text-gray-400 w-32 shrink-0">
+                                              {new Date(ev.created_at).toLocaleString('it-IT')}
+                                            </span>
+                                            <span className="font-mono text-brand-navy">{ev.evento}</span>
+                                            {ev.schermata && (
+                                              <span className="text-gray-400">({ev.schermata})</span>
+                                            )}
+                                          </li>
+                                        ))}
+                                      </ul>
                                     )}
                                   </div>
                                 </div>
-                                <div className="md:col-span-2">
-                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Timeline ultimi eventi</h3>
-                                  {dettaglioUtente.timeline.length === 0 ? (
-                                    <p className="text-gray-400 text-xs">Nessun evento</p>
-                                  ) : (
-                                    <ul className="space-y-1.5">
-                                      {dettaglioUtente.timeline.map((ev, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-xs text-gray-600">
-                                          <span className="text-gray-400 w-32 shrink-0">
-                                            {new Date(ev.created_at).toLocaleString('it-IT')}
-                                          </span>
-                                          <span className="font-mono text-brand-navy">{ev.evento}</span>
-                                          {ev.schermata && (
-                                            <span className="text-gray-400">({ev.schermata})</span>
-                                          )}
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </td>
-                        </tr>
-                      )}
-                    </Fragment>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                              )}
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
@@ -963,7 +1052,108 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {tabAttiva === 'ticket' && (
+          <div>
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+              Ticket / Segnalazioni
+            </h2>
+            {caricandoTicket ? (
+              <div className="flex justify-center py-6">
+                <div className="w-5 h-5 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : segnalazioni.length === 0 ? (
+              <p className="text-gray-400 text-sm">Nessuna segnalazione</p>
+            ) : (
+              <div className="space-y-3">
+                {segnalazioni.map((s) => (
+                  <div key={s.id} className="rounded-xl border border-gray-200 bg-white p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-brand-navy">{s.titolo}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {s.nome_azienda || 'N/D'} · {s.piattaforma} · {s.schermata || '—'} · {new Date(s.created_at).toLocaleString('it-IT')}
+                        </p>
+                      </div>
+                      <select
+                        value={s.stato || 'aperto'}
+                        onChange={(e) => void aggiornaStatoTicket(s.id, e.target.value)}
+                        className="text-xs border border-gray-200 rounded-lg px-2 py-1"
+                      >
+                        <option value="aperto">Aperto</option>
+                        <option value="in_lavorazione">In lavorazione</option>
+                        <option value="risolto">Risolto</option>
+                      </select>
+                    </div>
+                    <p className="text-sm text-gray-700 mt-2">{s.descrizione}</p>
+                    {s.screenshot_url && (
+                      <a href={s.screenshot_url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-teal underline mt-2 inline-block">
+                        Vedi screenshot
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
+
+      {modalCreaUtenteAperto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-sm font-semibold text-brand-navy mb-4">Crea nuovo utente</h3>
+            <div className="space-y-3">
+              <input
+                type="email"
+                placeholder="Email"
+                value={nuovoEmail}
+                onChange={(e) => setNuovoEmail(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              />
+              <input
+                type="text"
+                placeholder="Password (min 8 caratteri)"
+                value={nuovoPassword}
+                onChange={(e) => setNuovoPassword(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              />
+              <input
+                type="tel"
+                placeholder="Telefono (opzionale)"
+                value={nuovoTelefono}
+                onChange={(e) => setNuovoTelefono(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              />
+              <input
+                type="text"
+                placeholder="Nome azienda (opzionale)"
+                value={nuovoNomeAzienda}
+                onChange={(e) => setNuovoNomeAzienda(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              />
+            </div>
+            {creaUtenteMsg && (
+              <p className="text-xs text-gray-500 mt-2">{creaUtenteMsg}</p>
+            )}
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => setModalCreaUtenteAperto(false)}
+                className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={creaUtente}
+                disabled={creandoUtente || !nuovoEmail || !nuovoPassword}
+                className="flex-1 rounded-lg bg-brand-teal text-white px-3 py-2 text-sm disabled:opacity-50"
+              >
+                {creandoUtente ? 'Creazione...' : 'Crea'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   )
 }
