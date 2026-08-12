@@ -41,6 +41,8 @@ interface UtenteAttivo {
   user_id: string
   email: string
   nome_azienda: string
+  plan: string | null
+  trial_ends_at: string | null
   num_preventivi: number
   ultimo_accesso: string
   numero_sessioni: number
@@ -76,6 +78,9 @@ interface DettaglioUtente {
   vendite_count: number
   vendite_incassato: number
   timeline: { evento: string; schermata: string | null; created_at: string }[]
+  plan: string | null
+  trial_inizio: string | null
+  trial_ends_at: string | null
 }
 
 type ProdottoDigitaleJoin = {
@@ -211,7 +216,13 @@ export default function AdminDashboard() {
   const [utenteEspanso, setUtenteEspanso] = useState<string | null>(null)
   const [dettaglioUtente, setDettaglioUtente] = useState<DettaglioUtente | null>(null)
   const [dettaglioLoading, setDettaglioLoading] = useState(false)
+  const [trialInizioInput, setTrialInizioInput] = useState('')
+  const [trialFineInput, setTrialFineInput] = useState('')
+  const [planBeta, setPlanBeta] = useState(false)
+  const [salvandoTrial, setSalvandoTrial] = useState(false)
+  const [trialSalvatoMsg, setTrialSalvatoMsg] = useState<string | null>(null)
   const [periodoGiorni, setPeriodoGiorni] = useState(7)
+  const [tabAttiva, setTabAttiva] = useState<'panoramica' | 'utenti' | 'vendite' | 'costi'>('panoramica')
 
   const eventiFiltrati = useMemo(
     () => filtraEventiPerPiattaforma(eventiCompleti, filtroPiattaforma),
@@ -260,6 +271,7 @@ export default function AdminDashboard() {
       { data: preventivi },
       { count: prodottiCount },
       { data: venditeUtente },
+      { data: profiloTrial },
     ] = await Promise.all([
       supabase
         .from('eventi')
@@ -282,7 +294,20 @@ export default function AdminDashboard() {
         .eq('pagato', true)
         .eq('prodotti_digitali.user_id', userId)
         .gte('created_at', inizio),
+      supabase
+        .from('profiles')
+        .select('plan, trial_inizio, trial_ends_at')
+        .eq('id', userId)
+        .single(),
     ])
+
+    if (profiloTrial?.trial_inizio) {
+      setTrialInizioInput(String(profiloTrial.trial_inizio).slice(0, 10))
+    }
+    if (profiloTrial?.trial_ends_at) {
+      setTrialFineInput(String(profiloTrial.trial_ends_at).slice(0, 10))
+    }
+    setPlanBeta(profiloTrial?.plan === 'beta')
 
     const schermateMap: Record<string, number> = {}
     const featureMap: Record<string, number> = {}
@@ -320,6 +345,9 @@ export default function AdminDashboard() {
         schermata: e.schermata,
         created_at: e.created_at,
       })),
+      plan: profiloTrial?.plan || null,
+      trial_inizio: profiloTrial?.trial_inizio || null,
+      trial_ends_at: profiloTrial?.trial_ends_at || null,
     })
     setDettaglioLoading(false)
   }
@@ -332,7 +360,37 @@ export default function AdminDashboard() {
     }
     setUtenteEspanso(userId)
     setDettaglioUtente(null)
+    setTrialInizioInput('')
+    setTrialFineInput('')
+    setPlanBeta(false)
+    setTrialSalvatoMsg(null)
     void caricaDettaglioUtente(userId)
+  }
+
+  async function salvaTrial(userId: string) {
+    setSalvandoTrial(true)
+    setTrialSalvatoMsg(null)
+    try {
+      const res = await fetch(`/api/admin/utente/${userId}/trial`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trial_inizio: trialInizioInput || null,
+          trial_ends_at: trialFineInput || null,
+          plan: planBeta ? 'beta' : null,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Errore salvataggio')
+      }
+      setTrialSalvatoMsg('Salvato')
+      setTimeout(() => setTrialSalvatoMsg(null), 3000)
+    } catch (e) {
+      setTrialSalvatoMsg(e instanceof Error ? e.message : 'Errore')
+    } finally {
+      setSalvandoTrial(false)
+    }
   }
 
   async function caricaDati() {
@@ -443,7 +501,7 @@ export default function AdminDashboard() {
     // Utenti attivi con dati profilo
     if (sessioniRaw && sessioniRaw.length > 0) {
       const userIds = sessioniRaw.map(s => s.user_id)
-      const { data: profili } = await supabase.from('profiles').select('id, nome_azienda').in('id', userIds)
+      const { data: profili } = await supabase.from('profiles').select('id, nome_azienda, plan, trial_ends_at').in('id', userIds)
       const { data: costiUtenti } = await supabase.from('ai_usage').select('user_id, costo_euro').in('user_id', userIds).gte('created_at', dataInizioStr)
       const { data: prevUtenti } = await supabase.from('preventivi').select('user_id').in('user_id', userIds)
 
@@ -458,6 +516,8 @@ export default function AdminDashboard() {
           user_id: s.user_id,
           email: s.user_id.slice(0, 8) + '...',
           nome_azienda: profilo?.nome_azienda || 'N/D',
+          plan: profilo?.plan || null,
+          trial_ends_at: profilo?.trial_ends_at || null,
           num_preventivi: prevPerUtente[s.user_id] || 0,
           ultimo_accesso: s.ultimo_accesso,
           numero_sessioni: s.numero_sessioni,
@@ -496,10 +556,31 @@ export default function AdminDashboard() {
         </select>
       </div>
 
+      <div className="flex gap-1 border-b border-gray-200 mb-6">
+        {([
+          { id: 'panoramica', label: 'Panoramica' },
+          { id: 'utenti', label: 'Utenti' },
+          { id: 'vendite', label: 'Vendite' },
+          { id: 'costi', label: 'Costi AI' },
+        ] as const).map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setTabAttiva(tab.id)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              tabAttiva === tab.id
+                ? 'border-brand-teal text-brand-teal'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       <div className="space-y-6">
 
         {/* Stats generali */}
-        {stato && (
+        {tabAttiva === 'panoramica' && stato && (
           <>
             <div>
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Utenti</h2>
@@ -538,7 +619,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Uso per endpoint */}
-        {usaggioEndpoint.length > 0 && (
+        {tabAttiva === 'costi' && usaggioEndpoint.length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Endpoint AI</h2>
             <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
@@ -569,7 +650,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Eventi frequenti */}
-        {eventiFrequenti.length > 0 && (
+        {tabAttiva === 'costi' && eventiFrequenti.length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Funzioni più usate</h2>
             <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
@@ -617,7 +698,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Feature adoption */}
-        {featureAdoption.length > 0 && (
+        {tabAttiva === 'costi' && featureAdoption.length > 0 && (
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Feature adoption</h2>
             <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
@@ -646,7 +727,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Vendite prodotti digitali */}
-        {venditeSommario && (
+        {tabAttiva === 'vendite' && venditeSommario && (
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Vendite prodotti digitali</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
@@ -693,7 +774,7 @@ export default function AdminDashboard() {
         )}
 
         {/* Utenti attivi */}
-        {utentiAttivi.length > 0 && (
+        {tabAttiva === 'utenti' && utentiAttivi.length > 0 && (
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
@@ -732,6 +813,11 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 font-medium text-brand-navy">
                           <span className="mr-2 text-gray-400">{utenteEspanso === u.user_id ? '▼' : '▶'}</span>
                           {u.nome_azienda}
+                          {u.plan === 'beta' && u.trial_ends_at && new Date(u.trial_ends_at) < new Date() && (
+                            <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                              Trial scaduto
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right text-gray-700">{u.num_preventivi}</td>
                         <td className="px-4 py-3 text-right text-gray-700">{u.numero_sessioni}</td>
@@ -794,6 +880,49 @@ export default function AdminDashboard() {
                                     )}
                                   </p>
                                 </div>
+                                <div className="md:col-span-2 border-t border-gray-200 pt-4 mt-2">
+                                  <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">
+                                    Periodo di prova
+                                  </h3>
+                                  <div className="flex flex-wrap items-end gap-3">
+                                    <label className="flex flex-col text-xs text-gray-600">
+                                      Inizio
+                                      <input
+                                        type="date"
+                                        value={trialInizioInput}
+                                        onChange={(e) => setTrialInizioInput(e.target.value)}
+                                        className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
+                                      />
+                                    </label>
+                                    <label className="flex flex-col text-xs text-gray-600">
+                                      Fine
+                                      <input
+                                        type="date"
+                                        value={trialFineInput}
+                                        onChange={(e) => setTrialFineInput(e.target.value)}
+                                        className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
+                                      />
+                                    </label>
+                                    <label className="flex items-center gap-2 text-xs text-gray-600 pb-1.5">
+                                      <input
+                                        type="checkbox"
+                                        checked={planBeta}
+                                        onChange={(e) => setPlanBeta(e.target.checked)}
+                                      />
+                                      Piano BETA attivo
+                                    </label>
+                                    <button
+                                      onClick={() => salvaTrial(u.user_id)}
+                                      disabled={salvandoTrial}
+                                      className="rounded-lg bg-brand-teal px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-teal/90 disabled:opacity-50"
+                                    >
+                                      {salvandoTrial ? 'Salvataggio...' : 'Salva'}
+                                    </button>
+                                    {trialSalvatoMsg && (
+                                      <span className="text-xs text-gray-500">{trialSalvatoMsg}</span>
+                                    )}
+                                  </div>
+                                </div>
                                 <div className="md:col-span-2">
                                   <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Timeline ultimi eventi</h3>
                                   {dettaglioUtente.timeline.length === 0 ? (
@@ -827,7 +956,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {eventiFrequenti.length === 0 && usaggioEndpoint.length === 0 && (
+        {tabAttiva === 'panoramica' && eventiFrequenti.length === 0 && usaggioEndpoint.length === 0 && (
           <div className="text-center py-16 text-brand-muted-2">
             <p className="text-lg font-medium">Nessun dato ancora</p>
             <p className="text-sm mt-1">I dati appariranno dopo le prime interazioni degli utenti</p>
