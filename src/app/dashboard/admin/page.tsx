@@ -109,6 +109,17 @@ function parseProdottoJoin(raw: unknown): ProdottoDigitaleJoin | null {
   return p
 }
 
+function generaPasswordCasuale(): string {
+  const caratteri = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'
+  let risultato = ''
+  const randomValues = new Uint32Array(12)
+  crypto.getRandomValues(randomValues)
+  for (let i = 0; i < 12; i++) {
+    risultato += caratteri[randomValues[i] % caratteri.length]
+  }
+  return risultato
+}
+
 function badgeStato(stato: string | null) {
   const s = stato || 'aperta'
   const config = {
@@ -1295,13 +1306,22 @@ export default function AdminDashboard() {
                 onChange={(e) => setNuovoEmail(e.target.value)}
                 className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
               />
-              <input
-                type="text"
-                placeholder="Password (min 8 caratteri)"
-                value={nuovoPassword}
-                onChange={(e) => setNuovoPassword(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Password (min 8 caratteri)"
+                  value={nuovoPassword}
+                  onChange={(e) => setNuovoPassword(e.target.value)}
+                  className="flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setNuovoPassword(generaPasswordCasuale())}
+                  className="rounded-lg border border-gray-200 px-3 py-2 text-xs font-medium text-brand-teal hover:bg-brand-bg whitespace-nowrap"
+                >
+                  Genera
+                </button>
+              </div>
               <input
                 type="tel"
                 placeholder="Telefono (opzionale)"
