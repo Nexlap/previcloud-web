@@ -59,7 +59,17 @@ export async function GET(req: NextRequest) {
     nome_azienda: profili?.find(p => p.id === s.user_id)?.nome_azienda || null,
   }))
 
-  return NextResponse.json({ segnalazioni: result })
+  const resultConSignedUrl = await Promise.all(
+    (result || []).map(async (s) => {
+      if (!s.screenshot_url) return s
+      const { data: signedData } = await supabaseAdmin.storage
+        .from('segnalazioni')
+        .createSignedUrl(s.screenshot_url, 3600)
+      return { ...s, screenshot_url: signedData?.signedUrl || null }
+    })
+  )
+
+  return NextResponse.json({ segnalazioni: resultConSignedUrl })
 }
 
 export async function PATCH(req: NextRequest) {
