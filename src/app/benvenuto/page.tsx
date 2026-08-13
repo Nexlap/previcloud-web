@@ -3,41 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Loader2 } from 'lucide-react'
+import { ExternalLink, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-
-const TERMINI_PLACEHOLDER = `
-TERMINI E CONDIZIONI DI UTILIZZO — PreviCloud
-
-1. Oggetto del servizio
-PreviCloud fornisce strumenti digitali per la creazione, gestione e invio di preventivi
-destinati a professionisti e piccole imprese.
-
-2. Registrazione e account
-L'utente è responsabile della veridicità dei dati forniti in fase di registrazione e della
-custodia delle proprie credenziali di accesso.
-
-3. Utilizzo consentito
-È vietato utilizzare il servizio per scopi illeciti, per inviare contenuti fraudolenti o per
-tentare di compromettere la sicurezza della piattaforma.
-
-4. Proprietà intellettuale
-Il software, il marchio e i contenuti della piattaforma restano di proprietà di PreviCloud.
-I contenuti inseriti dall'utente restano di proprietà dell'utente.
-
-5. Limitazione di responsabilità
-PreviCloud non è responsabile per danni indiretti derivanti dall'uso del servizio, né per
-errori nei preventivi generati o inviati dall'utente.
-
-6. Modifiche
-Ci riserviamo il diritto di aggiornare questi termini. Le modifiche saranno comunicate
-tramite la piattaforma o via email.
-
-7. Legge applicabile
-Per ogni controversia si applica la legge italiana. Foro competente: Italia.
-
-Per maggiori dettagli consulta anche la Privacy Policy.
-`.trim()
 
 export default function BenvenutoPage() {
   const router = useRouter()
@@ -130,8 +97,20 @@ export default function BenvenutoPage() {
           </p>
 
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-            <div className="h-64 overflow-y-auto px-6 py-5 text-sm text-gray-600 leading-relaxed whitespace-pre-line border-b border-gray-100">
-              {TERMINI_PLACEHOLDER}
+            <div className="px-6 py-5 border-b border-gray-100">
+              <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                I Termini di Servizio ufficiali sono pubblicati sul sito. Aprili e leggili prima di
+                continuare.
+              </p>
+              <Link
+                href="/termini"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-[#0E9F8E]/30 bg-[#0E9F8E]/5 text-sm font-semibold text-[#0E9F8E] hover:bg-[#0E9F8E]/10 transition-all"
+              >
+                Apri i Termini di Servizio
+                <ExternalLink size={15} />
+              </Link>
             </div>
 
             <div className="px-6 py-5 flex flex-col gap-4">
@@ -147,17 +126,10 @@ export default function BenvenutoPage() {
                   <Link
                     href="/termini"
                     target="_blank"
+                    rel="noopener noreferrer"
                     className="text-[#0E9F8E] font-medium hover:underline underline-offset-2"
                   >
-                    Termini e Condizioni
-                  </Link>{' '}
-                  e la{' '}
-                  <Link
-                    href="/privacy"
-                    target="_blank"
-                    className="text-[#0E9F8E] font-medium hover:underline underline-offset-2"
-                  >
-                    Privacy Policy
+                    Termini di Servizio
                   </Link>
                 </span>
               </label>

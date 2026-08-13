@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const DESTINATARIO = 'previ_cloud@proton.me'
+const DESTINATARIO = 'info@previcloud.it'
 
 interface BetaSignupPayload {
   nome?: string

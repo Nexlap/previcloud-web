@@ -4,7 +4,7 @@ import { LegalPageLayout, LegalSection } from '@/components/LegalPageLayout'
 export const metadata: Metadata = {
   title: 'Cookie Policy — PreviCloud',
   description:
-    'Informativa sui cookie utilizzati da PreviCloud. Al momento il sito usa solo cookie tecnici essenziali (Stripe, Supabase); nessun cookie di profilazione o marketing.',
+    'Informativa sui cookie utilizzati da PreviCloud: cookie tecnici essenziali e, previo consenso, strumenti di analisi e marketing (Google Analytics 4, Meta Pixel).',
 }
 
 export default function CookiePolicyPage() {
@@ -20,7 +20,7 @@ export default function CookiePolicyPage() {
 
       <LegalSection title="2. Cookie tecnici essenziali">
         <p>
-          PreviCloud utilizza esclusivamente cookie e archiviazione locale strettamente necessari al
+          PreviCloud utilizza cookie e archiviazione locale strettamente necessari al
           funzionamento del servizio, per i quali non è richiesto il consenso preventivo:
         </p>
         <ul className="list-disc space-y-2 pl-5">
@@ -39,12 +39,30 @@ export default function CookiePolicyPage() {
         </ul>
       </LegalSection>
 
-      <LegalSection title="3. Cookie di profilazione e marketing">
+      <LegalSection title="3. Cookie di marketing e analisi">
         <p>
-          Allo stato attuale PreviCloud <strong>non</strong> utilizza cookie di profilazione, pubblicitari
-          o di tracciamento di terze parti a fini di marketing. Qualora in futuro venissero introdotti,
-          questa informativa sarà aggiornata e il loro utilizzo sarà subordinato al consenso esplicito
-          dell&apos;utente tramite il banner cookie.
+          PreviCloud utilizza i seguenti strumenti di terze parti per analizzare l&apos;utilizzo del sito e,
+          dove attivati, per finalità di marketing:
+        </p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li>
+            <strong>Google Analytics 4</strong> — raccoglie dati statistici anonimi sull&apos;utilizzo del
+            sito (pagine visitate, provenienza del traffico), per aiutarci a capire come migliorare il
+            servizio.
+          </li>
+          <li>
+            <strong>Meta Pixel</strong> — utilizzato per misurare l&apos;efficacia delle nostre campagne
+            pubblicitarie su Facebook e Instagram.
+          </li>
+        </ul>
+        <p>
+          Questi strumenti vengono attivati solo dopo il tuo consenso esplicito, gestito tramite il banner
+          dei cookie all&apos;accesso al sito (fornito da Termly). Puoi modificare le tue preferenze in
+          qualsiasi momento tramite il link &quot;Preferenze cookie&quot; nel footer del sito.
+        </p>
+        <p>
+          Se neghi il consenso, questi strumenti non vengono caricati e nessun dato viene inviato a Google
+          o Meta.
         </p>
       </LegalSection>
 

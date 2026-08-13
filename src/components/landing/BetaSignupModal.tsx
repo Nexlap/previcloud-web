@@ -443,15 +443,24 @@ export default function BetaSignupModal({
                             className="mt-1 h-4 w-4 rounded border-slate-300 text-teal-brand focus:ring-teal-brand accent-teal-brand"
                           />
                           <span className="text-xs text-slate-500 leading-tight">
-                            Ho letto e accetto la{" "}
+                            Accetto i{" "}
+                            <Link
+                              href="/termini"
+                              onClick={onClose}
+                              className="text-teal-brand font-bold underline hover:text-teal-dark transition-all"
+                            >
+                              Termini di Servizio
+                            </Link>
+                            {" "}e l&apos;{" "}
                             <Link
                               href="/privacy"
                               onClick={onClose}
                               className="text-teal-brand font-bold underline hover:text-teal-dark transition-all"
                             >
-                              Privacy Policy
-                            </Link>{" "}
-                            di PreviCloud conforme al GDPR. Accetto di essere contattato via WhatsApp per l&apos;invio delle credenziali. <span className="text-red-500">*</span>
+                              Informativa sulla Privacy
+                            </Link>
+                            . Accetto di essere contattato via WhatsApp per l&apos;invio delle credenziali.{" "}
+                            <span className="text-red-500">*</span>
                           </span>
                         </label>
                       </div>

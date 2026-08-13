@@ -7,8 +7,13 @@ export default function TerminiPage() {
         <p>
           PreviCloud è uno strumento software per la creazione e la gestione di preventivi digitali,
           la firma online dei documenti e il tracciamento degli incassi. Il servizio è erogato dal
-          titolare della piattaforma (di seguito, il «Titolare»), i cui estremi identificativi e
-          recapiti sono disponibili sul sito web del servizio.
+          Titolare della piattaforma.
+        </p>
+        <p>
+          Il Titolare del trattamento dei dati è Daniele Galmazzi, con sede in Via L. Sturzo 18M, 00071
+          Pomezia (RM), P.IVA IT17997661008.
+          Per qualsiasi richiesta relativa al trattamento dei tuoi dati personali (accesso, rettifica,
+          cancellazione, opposizione) puoi scrivere a: info@previcloud.it
         </p>
         <p>
           L&apos;utilizzo di PreviCloud implica l&apos;accettazione integrale dei presenti Termini di servizio.
@@ -119,8 +124,10 @@ export default function TerminiPage() {
 
       <LegalSection title="10. Contatti">
         <p>
-          Per informazioni sui presenti Termini è possibile contattare il Titolare tramite i recapiti
-          pubblicati sul sito web del servizio.
+          Il Titolare del trattamento dei dati è Daniele Galmazzi, con sede in Via L. Sturzo 18M, 00071
+          Pomezia (RM), P.IVA IT17997661008.
+          Per qualsiasi richiesta relativa al trattamento dei tuoi dati personali (accesso, rettifica,
+          cancellazione, opposizione) puoi scrivere a: info@previcloud.it
         </p>
       </LegalSection>
     </LegalPageLayout>

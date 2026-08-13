@@ -62,11 +62,12 @@ export default function PrivacyPage() {
           <section className="space-y-3">
             <SectionHeading n={1}>Titolare del trattamento</SectionHeading>
             <p className="text-slate-600 text-xs sm:text-sm">
-              Il titolare del trattamento dei dati personali è l&apos;entità che gestisce il servizio PreviCloud.
-              Gli estremi identificativi, la sede e i recapiti per le richieste in materia di privacy sono
-              pubblicati sul sito web del servizio o comunicati agli utenti nelle informative ufficiali. Ove
-              nominato, il responsabile della protezione dei dati può essere contattato tramite i canali indicati
-              sul sito.
+              Il Titolare del trattamento dei dati è Daniele Galmazzi, con sede in Via L. Sturzo 18M, 00071
+              Pomezia (RM), P.IVA IT17997661008.
+            </p>
+            <p className="text-slate-600 text-xs sm:text-sm">
+              Per qualsiasi richiesta relativa al trattamento dei tuoi dati personali (accesso, rettifica,
+              cancellazione, opposizione) puoi scrivere a: info@previcloud.it
             </p>
           </section>
 
@@ -200,9 +201,9 @@ export default function PrivacyPage() {
               <li>opposizione al trattamento, nei casi previsti dalla legge.</li>
             </ul>
             <p className="text-slate-600 text-xs sm:text-sm">
-              Le richieste possono essere inviate tramite i recapiti pubblicati sul sito del servizio. È inoltre
-              possibile eliminare l&apos;account direttamente dalle impostazioni dell&apos;applicazione. L&apos;interessato
-              ha diritto di proporre reclamo all&apos;Autorità Garante per la protezione dei dati personali
+              Le richieste possono essere inviate a: info@previcloud.it. È inoltre possibile eliminare
+              l&apos;account direttamente dalle impostazioni dell&apos;applicazione. L&apos;interessato ha diritto di
+              proporre reclamo all&apos;Autorità Garante per la protezione dei dati personali
               (www.garanteprivacy.it).
             </p>
           </section>
@@ -228,7 +229,7 @@ export default function PrivacyPage() {
             <SectionHeading n={11}>Contatti</SectionHeading>
             <p className="text-slate-600 text-xs sm:text-sm">
               Per domande sulla privacy o per esercitare i propri diritti è possibile contattare il titolare del
-              trattamento tramite i recapiti pubblicati sul sito web del servizio.
+              trattamento all&apos;indirizzo: info@previcloud.it
             </p>
           </section>
 
