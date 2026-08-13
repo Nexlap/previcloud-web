@@ -39,7 +39,8 @@ interface UsaggioEndpoint {
 
 interface UtenteAttivo {
   user_id: string
-  email: string
+  email: string | null
+  telefono: string | null
   nome_azienda: string
   plan: string | null
   trial_ends_at: string | null
@@ -47,6 +48,18 @@ interface UtenteAttivo {
   ultimo_accesso: string
   numero_sessioni: number
   costo_euro: number
+}
+
+interface UtenteTutti {
+  user_id: string
+  email: string | null
+  telefono: string | null
+  nome_azienda: string
+  plan: string | null
+  trial_ends_at: string | null
+  ultimo_accesso: string | null
+  numero_sessioni: number
+  mai_avviato: boolean
 }
 
 interface FeatureAdoption {
@@ -225,6 +238,9 @@ export default function AdminDashboard() {
     useState<FiltroPiattaforma>('tutte')
   const [usaggioEndpoint, setUsaggioEndpoint] = useState<UsaggioEndpoint[]>([])
   const [utentiAttivi, setUtentiAttivi] = useState<UtenteAttivo[]>([])
+  const [vistaUtenti, setVistaUtenti] = useState<'attivi' | 'tutti'>('attivi')
+  const [utentiTutti, setUtentiTutti] = useState<UtenteTutti[]>([])
+  const [caricandoTutti, setCaricandoTutti] = useState(false)
   const [venditeSommario, setVenditeSommario] = useState<VenditeSommario | null>(null)
   const [venditeProdotti, setVenditeProdotti] = useState<VenditaProdottoRiga[]>([])
   const [utenteEspanso, setUtenteEspanso] = useState<string | null>(null)
@@ -278,6 +294,11 @@ export default function AdminDashboard() {
       void caricaSegnalazioni()
     }
   }, [tabAttiva])
+  useEffect(() => {
+    if (tabAttiva === 'utenti' && vistaUtenti === 'tutti' && utentiTutti.length === 0) {
+      void caricaTuttiUtenti()
+    }
+  }, [tabAttiva, vistaUtenti])
 
   async function checkAdmin() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -436,6 +457,51 @@ export default function AdminDashboard() {
       console.error('Errore caricamento segnalazioni:', e)
     } finally {
       setCaricandoTicket(false)
+    }
+  }
+
+  async function caricaTuttiUtenti() {
+    setCaricandoTutti(true)
+    try {
+      const { data: profili } = await supabase
+        .from('profiles')
+        .select('id, nome_azienda, telefono, plan, trial_ends_at')
+        .order('created_at', { ascending: false })
+        .limit(200)
+
+      if (!profili || profili.length === 0) {
+        setUtentiTutti([])
+        return
+      }
+
+      const userIds = profili.map(p => p.id)
+      const { data: sessioniTutti } = await supabase
+        .from('sessioni')
+        .select('user_id, ultimo_accesso, numero_sessioni')
+        .in('user_id', userIds)
+
+      const emailRes = await fetch('/api/admin/utenti-email')
+      const emailData = await emailRes.json()
+      const emailMap: Record<string, string | null> = emailData.emails || {}
+
+      setUtentiTutti(profili.map(p => {
+        const sessione = sessioniTutti?.find(s => s.user_id === p.id)
+        return {
+          user_id: p.id,
+          email: emailMap[p.id] || null,
+          telefono: p.telefono,
+          nome_azienda: p.nome_azienda || 'N/D',
+          plan: p.plan,
+          trial_ends_at: p.trial_ends_at,
+          ultimo_accesso: sessione?.ultimo_accesso || null,
+          numero_sessioni: sessione?.numero_sessioni || 0,
+          mai_avviato: !sessione,
+        }
+      }))
+    } catch (e) {
+      console.error('Errore caricamento tutti utenti:', e)
+    } finally {
+      setCaricandoTutti(false)
     }
   }
 
@@ -599,9 +665,13 @@ export default function AdminDashboard() {
     // Utenti attivi con dati profilo
     if (sessioniRaw && sessioniRaw.length > 0) {
       const userIds = sessioniRaw.map(s => s.user_id)
-      const { data: profili } = await supabase.from('profiles').select('id, nome_azienda, plan, trial_ends_at').in('id', userIds)
+      const { data: profili } = await supabase.from('profiles').select('id, nome_azienda, telefono, plan, trial_ends_at').in('id', userIds)
       const { data: costiUtenti } = await supabase.from('ai_usage').select('user_id, costo_euro').in('user_id', userIds).gte('created_at', dataInizioStr)
       const { data: prevUtenti } = await supabase.from('preventivi').select('user_id').in('user_id', userIds)
+
+      const emailRes = await fetch('/api/admin/utenti-email')
+      const emailData = await emailRes.json()
+      const emailMap: Record<string, string | null> = emailData.emails || {}
 
       const costiPerUtente: Record<string, number> = {}
       costiUtenti?.forEach(r => { costiPerUtente[r.user_id] = (costiPerUtente[r.user_id] || 0) + (r.costo_euro || 0) })
@@ -612,7 +682,8 @@ export default function AdminDashboard() {
         const profilo = profili?.find(p => p.id === s.user_id)
         return {
           user_id: s.user_id,
-          email: s.user_id.slice(0, 8) + '...',
+          email: emailMap[s.user_id] || null,
+          telefono: profilo?.telefono || null,
           nome_azienda: profilo?.nome_azienda || 'N/D',
           plan: profilo?.plan || null,
           trial_ends_at: profilo?.trial_ends_at || null,
@@ -880,6 +951,20 @@ export default function AdminDashboard() {
                 Utenti attivi
               </h2>
               <div className="flex items-center gap-3">
+                <div className="flex rounded-lg border border-gray-200 overflow-hidden text-xs">
+                  <button
+                    onClick={() => setVistaUtenti('attivi')}
+                    className={`px-3 py-1.5 font-medium ${vistaUtenti === 'attivi' ? 'bg-brand-teal text-white' : 'bg-white text-gray-600'}`}
+                  >
+                    Attivi
+                  </button>
+                  <button
+                    onClick={() => setVistaUtenti('tutti')}
+                    className={`px-3 py-1.5 font-medium ${vistaUtenti === 'tutti' ? 'bg-brand-teal text-white' : 'bg-white text-gray-600'}`}
+                  >
+                    Tutti
+                  </button>
+                </div>
                 <button
                   onClick={() => setModalCreaUtenteAperto(true)}
                   className="text-xs font-medium bg-brand-teal text-white rounded-lg px-3 py-1.5 shadow-card hover:bg-brand-teal/90"
@@ -899,170 +984,244 @@ export default function AdminDashboard() {
                 </select>
               </div>
             </div>
-            {utentiAttivi.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-6">Nessun utente attivo</p>
-            ) : (
-              <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Azienda</th>
-                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Preventivi</th>
-                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Sessioni</th>
-                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Costo AI</th>
-                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Ultimo accesso</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {utentiAttivi.map(u => (
-                      <Fragment key={u.user_id}>
-                        <tr
-                          onClick={() => toggleUtente(u.user_id)}
-                          className={`hover:bg-gray-50 cursor-pointer ${utenteEspanso === u.user_id ? 'bg-[#F0FDFB]' : ''}`}
-                        >
-                          <td className="px-4 py-3 font-medium text-brand-navy">
-                            <span className="mr-2 text-gray-400">{utenteEspanso === u.user_id ? '▼' : '▶'}</span>
-                            {u.nome_azienda}
-                            {u.plan === 'beta' && u.trial_ends_at && new Date(u.trial_ends_at) < new Date() && (
-                              <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
-                                Trial scaduto
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-right text-gray-700">{u.num_preventivi}</td>
-                          <td className="px-4 py-3 text-right text-gray-700">{u.numero_sessioni}</td>
-                          <td className="px-4 py-3 text-right text-orange-500">€{u.costo_euro.toFixed(4)}</td>
-                          <td className="px-4 py-3 text-right text-gray-400 text-xs">
-                            {new Date(u.ultimo_accesso).toLocaleDateString('it-IT')}
-                          </td>
+            {vistaUtenti === 'attivi' && (
+              <>
+                {utentiAttivi.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-6">Nessun utente attivo</p>
+                ) : (
+                  <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Azienda</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Email</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Preventivi</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Sessioni</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Costo AI</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Ultimo accesso</th>
                         </tr>
-                        {utenteEspanso === u.user_id && (
-                          <tr>
-                            <td colSpan={5} className="px-4 py-4 bg-gray-50 border-t border-gray-100">
-                              {dettaglioLoading || !dettaglioUtente ? (
-                                <div className="flex justify-center py-6">
-                                  <div className="w-5 h-5 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
-                                </div>
-                              ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                                  <div>
-                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Schermate visitate</h3>
-                                    {dettaglioUtente.schermate.length === 0 ? (
-                                      <p className="text-gray-400 text-xs">Nessuna</p>
-                                    ) : (
-                                      <ul className="space-y-1">
-                                        {dettaglioUtente.schermate.map((s) => (
-                                          <li key={s.nome} className="flex justify-between text-gray-700">
-                                            <span className="font-mono text-xs">{s.nome}</span>
-                                            <span className="font-semibold">{s.count}</span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Feature usate</h3>
-                                    {dettaglioUtente.feature.length === 0 ? (
-                                      <p className="text-gray-400 text-xs">Nessuna</p>
-                                    ) : (
-                                      <ul className="space-y-1">
-                                        {dettaglioUtente.feature.map((f) => (
-                                          <li key={f.nome} className="flex justify-between text-gray-700">
-                                            <span className="font-mono text-xs">{f.nome}</span>
-                                            <span className="font-semibold">{f.count}</span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Preventivi</h3>
-                                    <p className="text-gray-700">
-                                      {dettaglioUtente.preventivi_count} creati — €{dettaglioUtente.preventivi_importo.toFixed(2)} totale
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Prodotti digitali</h3>
-                                    <p className="text-gray-700">
-                                      {dettaglioUtente.prodotti_creati} creati
-                                      {dettaglioUtente.vendite_count > 0 && (
-                                        <> — {dettaglioUtente.vendite_count} vendite (€{dettaglioUtente.vendite_incassato.toFixed(2)})</>
-                                      )}
-                                    </p>
-                                  </div>
-                                  <div className="md:col-span-2 border-t border-gray-200 pt-4 mt-2">
-                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">
-                                      Periodo di prova
-                                    </h3>
-                                    <div className="flex flex-wrap items-end gap-3">
-                                      <label className="flex flex-col text-xs text-gray-600">
-                                        Inizio
-                                        <input
-                                          type="date"
-                                          value={trialInizioInput}
-                                          onChange={(e) => setTrialInizioInput(e.target.value)}
-                                          className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
-                                        />
-                                      </label>
-                                      <label className="flex flex-col text-xs text-gray-600">
-                                        Fine
-                                        <input
-                                          type="date"
-                                          value={trialFineInput}
-                                          onChange={(e) => setTrialFineInput(e.target.value)}
-                                          className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
-                                        />
-                                      </label>
-                                      <label className="flex items-center gap-2 text-xs text-gray-600 pb-1.5">
-                                        <input
-                                          type="checkbox"
-                                          checked={planBeta}
-                                          onChange={(e) => setPlanBeta(e.target.checked)}
-                                        />
-                                        Piano BETA attivo
-                                      </label>
-                                      <button
-                                        onClick={() => salvaTrial(u.user_id)}
-                                        disabled={salvandoTrial}
-                                        className="rounded-lg bg-brand-teal px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-teal/90 disabled:opacity-50"
-                                      >
-                                        {salvandoTrial ? 'Salvataggio...' : 'Salva'}
-                                      </button>
-                                      {trialSalvatoMsg && (
-                                        <span className="text-xs text-gray-500">{trialSalvatoMsg}</span>
-                                      )}
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {utentiAttivi.map(u => (
+                          <Fragment key={u.user_id}>
+                            <tr
+                              onClick={() => toggleUtente(u.user_id)}
+                              className={`hover:bg-gray-50 cursor-pointer ${utenteEspanso === u.user_id ? 'bg-[#F0FDFB]' : ''}`}
+                            >
+                              <td className="px-4 py-3 font-medium text-brand-navy">
+                                <span className="mr-2 text-gray-400">{utenteEspanso === u.user_id ? '▼' : '▶'}</span>
+                                {u.nome_azienda}
+                                {u.plan === 'beta' && u.trial_ends_at && new Date(u.trial_ends_at) < new Date() && (
+                                  <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                                    Trial scaduto
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-gray-700 text-xs">{u.email || '—'}</td>
+                              <td className="px-4 py-3 text-right text-gray-700">{u.num_preventivi}</td>
+                              <td className="px-4 py-3 text-right text-gray-700">{u.numero_sessioni}</td>
+                              <td className="px-4 py-3 text-right text-orange-500">€{u.costo_euro.toFixed(4)}</td>
+                              <td className="px-4 py-3 text-right text-gray-400 text-xs">
+                                {new Date(u.ultimo_accesso).toLocaleDateString('it-IT')}
+                              </td>
+                            </tr>
+                            {utenteEspanso === u.user_id && (
+                              <tr>
+                                <td colSpan={6} className="px-4 py-4 bg-gray-50 border-t border-gray-100">
+                                  {dettaglioLoading || !dettaglioUtente ? (
+                                    <div className="flex justify-center py-6">
+                                      <div className="w-5 h-5 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
                                     </div>
-                                  </div>
-                                  <div className="md:col-span-2">
-                                    <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Timeline ultimi eventi</h3>
-                                    {dettaglioUtente.timeline.length === 0 ? (
-                                      <p className="text-gray-400 text-xs">Nessun evento</p>
-                                    ) : (
-                                      <ul className="space-y-1.5">
-                                        {dettaglioUtente.timeline.map((ev, i) => (
-                                          <li key={i} className="flex items-center gap-3 text-xs text-gray-600">
-                                            <span className="text-gray-400 w-32 shrink-0">
-                                              {new Date(ev.created_at).toLocaleString('it-IT')}
-                                            </span>
-                                            <span className="font-mono text-brand-navy">{ev.evento}</span>
-                                            {ev.schermata && (
-                                              <span className="text-gray-400">({ev.schermata})</span>
-                                            )}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    )}
-                                  </div>
-                                </div>
+                                  ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                      <div>
+                                        <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Contatti</h3>
+                                        <p className="text-gray-700">
+                                          Email: {u.email || '—'}
+                                          <br />
+                                          Telefono: {u.telefono || '—'}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Schermate visitate</h3>
+                                        {dettaglioUtente.schermate.length === 0 ? (
+                                          <p className="text-gray-400 text-xs">Nessuna</p>
+                                        ) : (
+                                          <ul className="space-y-1">
+                                            {dettaglioUtente.schermate.map((s) => (
+                                              <li key={s.nome} className="flex justify-between text-gray-700">
+                                                <span className="font-mono text-xs">{s.nome}</span>
+                                                <span className="font-semibold">{s.count}</span>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Feature usate</h3>
+                                        {dettaglioUtente.feature.length === 0 ? (
+                                          <p className="text-gray-400 text-xs">Nessuna</p>
+                                        ) : (
+                                          <ul className="space-y-1">
+                                            {dettaglioUtente.feature.map((f) => (
+                                              <li key={f.nome} className="flex justify-between text-gray-700">
+                                                <span className="font-mono text-xs">{f.nome}</span>
+                                                <span className="font-semibold">{f.count}</span>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Preventivi</h3>
+                                        <p className="text-gray-700">
+                                          {dettaglioUtente.preventivi_count} creati — €{dettaglioUtente.preventivi_importo.toFixed(2)} totale
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Prodotti digitali</h3>
+                                        <p className="text-gray-700">
+                                          {dettaglioUtente.prodotti_creati} creati
+                                          {dettaglioUtente.vendite_count > 0 && (
+                                            <> — {dettaglioUtente.vendite_count} vendite (€{dettaglioUtente.vendite_incassato.toFixed(2)})</>
+                                          )}
+                                        </p>
+                                      </div>
+                                      <div className="md:col-span-2 border-t border-gray-200 pt-4 mt-2">
+                                        <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">
+                                          Periodo di prova
+                                        </h3>
+                                        <div className="flex flex-wrap items-end gap-3">
+                                          <label className="flex flex-col text-xs text-gray-600">
+                                            Inizio
+                                            <input
+                                              type="date"
+                                              value={trialInizioInput}
+                                              onChange={(e) => setTrialInizioInput(e.target.value)}
+                                              className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
+                                            />
+                                          </label>
+                                          <label className="flex flex-col text-xs text-gray-600">
+                                            Fine
+                                            <input
+                                              type="date"
+                                              value={trialFineInput}
+                                              onChange={(e) => setTrialFineInput(e.target.value)}
+                                              className="mt-1 rounded-lg border border-gray-200 px-2 py-1 text-sm"
+                                            />
+                                          </label>
+                                          <label className="flex items-center gap-2 text-xs text-gray-600 pb-1.5">
+                                            <input
+                                              type="checkbox"
+                                              checked={planBeta}
+                                              onChange={(e) => setPlanBeta(e.target.checked)}
+                                            />
+                                            Piano BETA attivo
+                                          </label>
+                                          <button
+                                            onClick={() => salvaTrial(u.user_id)}
+                                            disabled={salvandoTrial}
+                                            className="rounded-lg bg-brand-teal px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-teal/90 disabled:opacity-50"
+                                          >
+                                            {salvandoTrial ? 'Salvataggio...' : 'Salva'}
+                                          </button>
+                                          {trialSalvatoMsg && (
+                                            <span className="text-xs text-gray-500">{trialSalvatoMsg}</span>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <div className="md:col-span-2">
+                                        <h3 className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-2">Timeline ultimi eventi</h3>
+                                        {dettaglioUtente.timeline.length === 0 ? (
+                                          <p className="text-gray-400 text-xs">Nessun evento</p>
+                                        ) : (
+                                          <ul className="space-y-1.5">
+                                            {dettaglioUtente.timeline.map((ev, i) => (
+                                              <li key={i} className="flex items-center gap-3 text-xs text-gray-600">
+                                                <span className="text-gray-400 w-32 shrink-0">
+                                                  {new Date(ev.created_at).toLocaleString('it-IT')}
+                                                </span>
+                                                <span className="font-mono text-brand-navy">{ev.evento}</span>
+                                                {ev.schermata && (
+                                                  <span className="text-gray-400">({ev.schermata})</span>
+                                                )}
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
+            {vistaUtenti === 'tutti' && (
+              <>
+                {caricandoTutti ? (
+                  <div className="flex justify-center py-6">
+                    <div className="w-5 h-5 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : utentiTutti.length === 0 ? (
+                  <p className="text-sm text-gray-400 text-center py-6">Nessun utente registrato</p>
+                ) : (
+                  <div className="bg-white border border-brand-border rounded-card shadow-card overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Nome azienda</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Email</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Telefono</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Piano</th>
+                          <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500">Scadenza trial</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Ultimo accesso</th>
+                          <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500">Sessioni</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {utentiTutti.map(u => (
+                          <tr key={u.user_id} className="hover:bg-gray-50">
+                            <td className="px-4 py-3 font-medium text-brand-navy">{u.nome_azienda}</td>
+                            <td className="px-4 py-3 text-gray-700 text-xs">{u.email || '—'}</td>
+                            <td className="px-4 py-3 text-gray-700 text-xs">{u.telefono || '—'}</td>
+                            <td className="px-4 py-3 text-gray-700">
+                              {u.plan === 'beta' ? (
+                                <span className="inline-flex items-center rounded-full bg-brand-teal/10 px-2 py-0.5 text-[10px] font-semibold text-brand-teal">
+                                  beta
+                                </span>
+                              ) : (
+                                u.plan || '—'
                               )}
                             </td>
+                            <td className="px-4 py-3 text-gray-700 text-xs">
+                              {u.trial_ends_at
+                                ? new Date(u.trial_ends_at).toLocaleDateString('it-IT')
+                                : '—'}
+                            </td>
+                            <td className="px-4 py-3 text-right text-xs">
+                              {u.ultimo_accesso ? (
+                                <span className="text-gray-400">
+                                  {new Date(u.ultimo_accesso).toLocaleDateString('it-IT')}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 italic">Mai avviato</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-right text-gray-700">{u.numero_sessioni}</td>
                           </tr>
-                        )}
-                      </Fragment>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
