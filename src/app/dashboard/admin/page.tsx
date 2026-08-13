@@ -96,6 +96,20 @@ function parseProdottoJoin(raw: unknown): ProdottoDigitaleJoin | null {
   return p
 }
 
+function badgeStato(stato: string | null) {
+  const s = stato || 'aperta'
+  const config = {
+    aperta: { label: 'Aperto', className: 'bg-red-100 text-red-700' },
+    in_lavorazione: { label: 'In lavorazione', className: 'bg-amber-100 text-amber-700' },
+    risolta: { label: 'Risolto', className: 'bg-green-100 text-green-700' },
+  }[s] || { label: s, className: 'bg-gray-100 text-gray-700' }
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${config.className}`}>
+      {config.label}
+    </span>
+  )
+}
+
 const NOMI_EVENTI: Record<string, string> = {
   firma_inviata: '✍️ Firma digitale',
   listino_foto: '📷 Listino da foto',
@@ -426,12 +440,20 @@ export default function AdminDashboard() {
   }
 
   async function aggiornaStatoTicket(id: string, stato: string) {
-    await fetch('/api/admin/segnalazioni', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, stato }),
-    })
-    void caricaSegnalazioni()
+    try {
+      const res = await fetch('/api/admin/segnalazioni', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, stato }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Errore aggiornamento stato')
+      }
+      void caricaSegnalazioni()
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Errore aggiornamento stato')
+    }
   }
 
   async function creaUtente() {
@@ -1074,15 +1096,18 @@ export default function AdminDashboard() {
                           {s.nome_azienda || 'N/D'} · {s.piattaforma} · {s.schermata || '—'} · {new Date(s.created_at).toLocaleString('it-IT')}
                         </p>
                       </div>
-                      <select
-                        value={s.stato || 'aperto'}
-                        onChange={(e) => void aggiornaStatoTicket(s.id, e.target.value)}
-                        className="text-xs border border-gray-200 rounded-lg px-2 py-1"
-                      >
-                        <option value="aperto">Aperto</option>
-                        <option value="in_lavorazione">In lavorazione</option>
-                        <option value="risolto">Risolto</option>
-                      </select>
+                      <div className="flex items-center gap-2">
+                        {badgeStato(s.stato)}
+                        <select
+                          value={s.stato || 'aperta'}
+                          onChange={(e) => void aggiornaStatoTicket(s.id, e.target.value)}
+                          className="text-xs border border-gray-200 rounded-lg px-2 py-1"
+                        >
+                          <option value="aperta">Aperto</option>
+                          <option value="in_lavorazione">In lavorazione</option>
+                          <option value="risolta">Risolto</option>
+                        </select>
+                      </div>
                     </div>
                     <p className="text-sm text-gray-700 mt-2">{s.descrizione}</p>
                     {s.screenshot_url && (

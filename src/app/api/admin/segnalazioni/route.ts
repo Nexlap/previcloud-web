@@ -108,6 +108,7 @@ export async function PATCH(req: NextRequest) {
     .eq('id', id)
 
   if (error) {
+    console.error('admin segnalazioni PATCH error:', error)
     return NextResponse.json({ error: 'Errore aggiornamento' }, { status: 500 })
   }
 
