@@ -6,11 +6,14 @@ import { supabase } from '@/lib/supabase'
 import { DashboardLayout } from '@/components/DashboardLayout'
 
 const APK_URL =
-  'https://github.com/danielegalmax/preventivoai-mobile/releases/download/v1.0.0-beta/preventivoai-android-v1.0.0-beta.apk'
+  'https://github.com/Nexlap/previcloud-mobile/releases/download/v1.0.0-beta/previcloud-android-1.0.0-beta.apk'
 const WINDOWS_INSTALLER_URL =
-  'https://github.com/danielegalmax/preventivoai-desktop/releases/download/v1.0.0-beta/preventivoai-desktop_1.0.0_x64-setup.exe'
+  'https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/previcloud-desktop_1.0.0_x64-setup.exe'
+const MACOS_DMG_URL =
+  'https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/PreviCloud_1.0.0_aarch64.dmg'
 const VERSIONE_ANDROID = '1.0.0'
 const VERSIONE_WINDOWS = '1.0.0'
+const VERSIONE_MACOS = '1.0.0'
 
 function AndroidIcon() {
   return (
@@ -30,6 +33,17 @@ function WindowsIcon() {
       <path fill="#0078D4" d="M12.5 11.2L21 10v9.9l-8.5-1.1v-7.6z" />
       <path fill="#0078D4" d="M3 4.1l8.5 1.2v7.1L3 11.3V4.1z" />
       <path fill="#0078D4" d="M12.5 12.4L21 13.6V4.1l-8.5 1.1v7.2z" />
+    </svg>
+  )
+}
+
+function MacIcon() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
+        fill="#555555"
+      />
     </svg>
   )
 }
@@ -78,7 +92,7 @@ export default function ScaricaPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col">
             <div className="flex items-center gap-3 mb-4">
               <AndroidIcon />
@@ -116,6 +130,26 @@ export default function ScaricaPage() {
             >
               <Download size={16} />
               Scarica installer
+            </a>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col">
+            <div className="flex items-center gap-3 mb-4">
+              <MacIcon />
+              <div>
+                <h2 className="text-lg font-semibold text-[#0D1B2A]">App macOS</h2>
+                <span className="text-xs text-gray-400 font-normal">v{VERSIONE_MACOS}</span>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 flex-1 mb-5">
+              Scarica il DMG per usare PreviCloud sul tuo Mac (Apple Silicon).
+            </p>
+            <a
+              href={MACOS_DMG_URL}
+              className="inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-[#0D1B2A] text-white rounded-xl text-sm font-semibold hover:bg-[#162540] transition-all"
+            >
+              <Download size={16} />
+              Scarica DMG
             </a>
           </div>
         </div>
