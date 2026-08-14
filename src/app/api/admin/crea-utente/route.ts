@@ -95,21 +95,51 @@ export async function POST(req: NextRequest) {
           <p>Hai 60 giorni di prova gratuita del piano BETA, fino al ${trialFine.toLocaleDateString('it-IT')}.</p>
           <p><a href="https://previcloud.it/login">Accedi ora</a> per iniziare, accettare i termini e scaricare l'app.</p>
           <div style="margin-top:32px">
-            <p style="font-size:14px;color:#0D1B2A;font-weight:600;margin-bottom:12px">
-              Scarica l'app
-            </p>
-            <a href="https://github.com/Nexlap/previcloud-mobile/releases/download/v1.0.0-beta/previcloud-android-1.0.0-beta.apk" style="display:block;padding:14px 16px;margin-bottom:10px;background:#f5f7f7;border-radius:8px;text-decoration:none;color:#0D1B2A;font-size:14px">
-              📱 Android — Scarica APK
-            </a>
-            <a href="https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/previcloud-desktop_1.0.0_x64-setup.exe" style="display:block;padding:14px 16px;margin-bottom:10px;background:#f5f7f7;border-radius:8px;text-decoration:none;color:#0D1B2A;font-size:14px">
-              🪟 Windows — Scarica installer
-            </a>
-            <a href="https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/PreviCloud_1.0.0_aarch64.dmg" style="display:block;padding:14px 16px;margin-bottom:10px;background:#f5f7f7;border-radius:8px;text-decoration:none;color:#0D1B2A;font-size:14px">
-              🍎 Mac — Scarica DMG
-            </a>
-            <a href="https://testflight.apple.com/join/PLACEHOLDER" style="display:block;padding:14px 16px;background:#0E9F8E;border-radius:8px;text-decoration:none;color:#ffffff;font-size:14px;font-weight:600">
-              🍏 iPhone/iPad — Prova su TestFlight
-            </a>
+            <p style="font-size:14px;color:#0D1B2A;font-weight:600;margin:0 0 12px">Scarica l'app</p>
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10px;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px">
+              <tr>
+                <td style="padding:16px">
+                  <p style="margin:0;font-size:16px;font-weight:600;color:#0D1B2A">App Android</p>
+                  <p style="margin:4px 0 0;font-size:12px;color:#9ca3af">v1.0.0</p>
+                  <p style="margin:8px 0 14px;font-size:13px;color:#6b7280">Scarica l'APK e installa PreviCloud sul tuo smartphone Android.</p>
+                  <a href="https://github.com/Nexlap/previcloud-mobile/releases/download/v1.0.0-beta/previcloud-android-1.0.0-beta.apk" style="display:inline-block;padding:10px 16px;background:#0D1B2A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600">Scarica APK</a>
+                </td>
+              </tr>
+            </table>
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10px;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px">
+              <tr>
+                <td style="padding:16px">
+                  <p style="margin:0;font-size:16px;font-weight:600;color:#0D1B2A">App Windows</p>
+                  <p style="margin:4px 0 0;font-size:12px;color:#9ca3af">v1.0.0</p>
+                  <p style="margin:8px 0 14px;font-size:13px;color:#6b7280">Scarica l'installer per usare PreviCloud sul tuo PC Windows.</p>
+                  <a href="https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/previcloud-desktop_1.0.0_x64-setup.exe" style="display:inline-block;padding:10px 16px;background:#0D1B2A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600">Scarica installer</a>
+                </td>
+              </tr>
+            </table>
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:10px;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px">
+              <tr>
+                <td style="padding:16px">
+                  <p style="margin:0;font-size:16px;font-weight:600;color:#0D1B2A">App macOS</p>
+                  <p style="margin:4px 0 0;font-size:12px;color:#9ca3af">v1.0.0</p>
+                  <p style="margin:8px 0 14px;font-size:13px;color:#6b7280">Scarica il DMG per usare PreviCloud sul tuo Mac (Apple Silicon).</p>
+                  <a href="https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/PreviCloud_1.0.0_aarch64.dmg" style="display:inline-block;padding:10px 16px;background:#0D1B2A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600">Scarica DMG</a>
+                </td>
+              </tr>
+            </table>
+
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:12px">
+              <tr>
+                <td style="padding:16px">
+                  <p style="margin:0;font-size:16px;font-weight:600;color:#0D1B2A">App iPhone/iPad</p>
+                  <p style="margin:4px 0 0;font-size:12px;color:#9ca3af">TestFlight</p>
+                  <p style="margin:8px 0 14px;font-size:13px;color:#6b7280">Prova PreviCloud su iOS tramite TestFlight.</p>
+                  <a href="https://testflight.apple.com/join/PLACEHOLDER" style="display:inline-block;padding:10px 16px;background:#0E9F8E;color:#ffffff;text-decoration:none;border-radius:8px;font-size:13px;font-weight:600">Apri TestFlight</a>
+                </td>
+              </tr>
+            </table>
           </div>
         </div>
       `,
