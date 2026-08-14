@@ -87,14 +87,33 @@ export async function POST(req: NextRequest) {
       to: email,
       subject: 'Il tuo account PreviCloud è pronto!',
       html: `
-        <h1>Congratulazioni! Il tuo account è stato creato</h1>
-        <p>Ecco le tue credenziali di accesso:</p>
-        <p><strong>Email:</strong> ${email}<br/>
-        <strong>Password:</strong> ${password}</p>
-        <p>Hai 60 giorni di prova gratuita del piano BETA, fino al ${trialFine.toLocaleDateString('it-IT')}.</p>
-        <p><a href="https://previcloud.it/login">Accedi ora</a> per iniziare, accettare i termini e scaricare l'app.</p>
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 16px">
+          <h1>Congratulazioni! Il tuo account è stato creato</h1>
+          <p>Ecco le tue credenziali di accesso:</p>
+          <p><strong>Email:</strong> ${email}<br/>
+          <strong>Password:</strong> ${password}</p>
+          <p>Hai 60 giorni di prova gratuita del piano BETA, fino al ${trialFine.toLocaleDateString('it-IT')}.</p>
+          <p><a href="https://previcloud.it/login">Accedi ora</a> per iniziare, accettare i termini e scaricare l'app.</p>
+          <div style="margin-top:32px">
+            <p style="font-size:14px;color:#0D1B2A;font-weight:600;margin-bottom:12px">
+              Scarica l'app
+            </p>
+            <a href="https://github.com/Nexlap/previcloud-mobile/releases/download/v1.0.0-beta/previcloud-android-1.0.0-beta.apk" style="display:block;padding:14px 16px;margin-bottom:10px;background:#f5f7f7;border-radius:8px;text-decoration:none;color:#0D1B2A;font-size:14px">
+              📱 Android — Scarica APK
+            </a>
+            <a href="https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/previcloud-desktop_1.0.0_x64-setup.exe" style="display:block;padding:14px 16px;margin-bottom:10px;background:#f5f7f7;border-radius:8px;text-decoration:none;color:#0D1B2A;font-size:14px">
+              🪟 Windows — Scarica installer
+            </a>
+            <a href="https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/PreviCloud_1.0.0_aarch64.dmg" style="display:block;padding:14px 16px;margin-bottom:10px;background:#f5f7f7;border-radius:8px;text-decoration:none;color:#0D1B2A;font-size:14px">
+              🍎 Mac — Scarica DMG
+            </a>
+            <a href="https://testflight.apple.com/join/PLACEHOLDER" style="display:block;padding:14px 16px;background:#0E9F8E;border-radius:8px;text-decoration:none;color:#ffffff;font-size:14px;font-weight:600">
+              🍏 iPhone/iPad — Prova su TestFlight
+            </a>
+          </div>
+        </div>
       `,
-      text: `Congratulazioni! Il tuo account PreviCloud è stato creato.\n\nEmail: ${email}\nPassword: ${password}\n\nHai 60 giorni di prova gratuita, fino al ${trialFine.toLocaleDateString('it-IT')}.\n\nAccedi su https://previcloud.it/login per iniziare, accettare i termini e scaricare l'app.`,
+      text: `Congratulazioni! Il tuo account PreviCloud è stato creato.\n\nEmail: ${email}\nPassword: ${password}\n\nHai 60 giorni di prova gratuita, fino al ${trialFine.toLocaleDateString('it-IT')}.\n\nAccedi su https://previcloud.it/login per iniziare, accettare i termini e scaricare l'app.\n\nScarica l'app:\nhttps://github.com/Nexlap/previcloud-mobile/releases/download/v1.0.0-beta/previcloud-android-1.0.0-beta.apk\nhttps://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/previcloud-desktop_1.0.0_x64-setup.exe\nhttps://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/PreviCloud_1.0.0_aarch64.dmg\nhttps://testflight.apple.com/join/PLACEHOLDER`,
     })
   } catch (emailError) {
     console.error('crea-utente email error:', emailError)
