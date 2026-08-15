@@ -8,7 +8,7 @@ import { DashboardLayout } from '@/components/DashboardLayout'
 const APK_URL =
   'https://github.com/Nexlap/previcloud-mobile/releases/download/v1.0.0-beta/previcloud-android-1.0.0-beta.apk'
 const WINDOWS_INSTALLER_URL =
-  'https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/previcloud-desktop_1.0.0_x64-setup.exe'
+  'https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/PreviCloud_1.0.0_x64-setup.exe'
 const MACOS_DMG_URL =
   'https://github.com/Nexlap/previcloud-desktop/releases/download/v1.0.0/PreviCloud_1.0.0_aarch64.dmg'
 const VERSIONE_ANDROID = '1.0.0'
