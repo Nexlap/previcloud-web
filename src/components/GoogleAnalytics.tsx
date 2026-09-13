@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { captureFirstTouchAttribution } from '@/lib/attribution'
 
 const POLL_INTERVAL_MS = 500
 const POLL_MAX_MS = 15_000
@@ -67,6 +68,8 @@ function injectGoogleAnalytics(measurementId: string): void {
 
 export default function GoogleAnalytics() {
   useEffect(() => {
+    captureFirstTouchAttribution()
+
     const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
     if (!measurementId) return
 

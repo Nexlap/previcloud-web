@@ -10,7 +10,16 @@ interface BetaSignupPayload {
   preventiviMensili?: string
   metodiAttuali?: string[]
   dispositivoPrincipale?: string
+  comeConosciuto?: string
   accettaPrivacy?: boolean
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+  utmContent?: string
+  utmTerm?: string
+  referrer?: string
+  landingPage?: string
+  pageUrl?: string
 }
 
 function escapeHtml(value: string): string {
@@ -31,7 +40,16 @@ function buildEmailHtml(data: BetaSignupPayload): string {
     ['Preventivi mensili', data.preventiviMensili ?? ''],
     ['Metodi attuali', metodi],
     ['Dispositivo principale', data.dispositivoPrincipale ?? ''],
+    ['Come ci hai conosciuto', data.comeConosciuto ?? ''],
     ['Privacy accettata', data.accettaPrivacy ? 'Sì' : 'No'],
+    ['UTM source', data.utmSource ?? ''],
+    ['UTM medium', data.utmMedium ?? ''],
+    ['UTM campaign', data.utmCampaign ?? ''],
+    ['UTM content', data.utmContent ?? ''],
+    ['UTM term', data.utmTerm ?? ''],
+    ['Referrer', data.referrer ?? ''],
+    ['Landing page', data.landingPage ?? ''],
+    ['Pagina al submit', data.pageUrl ?? ''],
   ]
 
   const rowsHtml = righe
@@ -99,7 +117,18 @@ function buildEmailText(data: BetaSignupPayload): string {
     `Preventivi mensili: ${data.preventiviMensili ?? ''}`,
     `Metodi attuali: ${metodi}`,
     `Dispositivo principale: ${data.dispositivoPrincipale ?? ''}`,
+    `Come ci hai conosciuto: ${data.comeConosciuto ?? ''}`,
     `Privacy accettata: ${data.accettaPrivacy ? 'Sì' : 'No'}`,
+    '',
+    '— Provenienza —',
+    `UTM source: ${data.utmSource ?? ''}`,
+    `UTM medium: ${data.utmMedium ?? ''}`,
+    `UTM campaign: ${data.utmCampaign ?? ''}`,
+    `UTM content: ${data.utmContent ?? ''}`,
+    `UTM term: ${data.utmTerm ?? ''}`,
+    `Referrer: ${data.referrer ?? ''}`,
+    `Landing page: ${data.landingPage ?? ''}`,
+    `Pagina al submit: ${data.pageUrl ?? ''}`,
   ].join('\n')
 }
 
@@ -192,7 +221,12 @@ export async function POST(req: NextRequest) {
   }
 
   // Validazione minima lato server
-  if (!data.nome?.trim() || !data.whatsapp?.trim() || !data.email?.trim()) {
+  if (
+    !data.nome?.trim() ||
+    !data.whatsapp?.trim() ||
+    !data.email?.trim() ||
+    !data.comeConosciuto?.trim()
+  ) {
     return NextResponse.json({ error: 'Campi obbligatori mancanti' }, { status: 400 })
   }
 

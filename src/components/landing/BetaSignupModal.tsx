@@ -4,6 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { X, CheckCircle2, ChevronRight, ChevronLeft, ShieldAlert, Smartphone, Monitor, SmartphoneNfc } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { captureFirstTouchAttribution } from "@/lib/attribution";
+
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 interface BetaSignupModalProps {
   isOpen: boolean;
@@ -33,6 +40,7 @@ export default function BetaSignupModal({
   const [customTool, setCustomTool] = useState("");
 
   const [primaryDevice, setPrimaryDevice] = useState("");
+  const [comeConosciuto, setComeConosciuto] = useState("");
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
 
   // Auto-fill initial profession if provided
@@ -76,7 +84,7 @@ export default function BetaSignupModal({
   };
 
   const isStep3Valid = () => {
-    return primaryDevice.length > 0 && acceptPrivacy;
+    return primaryDevice.length > 0 && comeConosciuto.trim().length > 0 && acceptPrivacy;
   };
 
   const handleNext = () => {
@@ -95,6 +103,7 @@ export default function BetaSignupModal({
     setLoading(true);
     setErrorMsg("");
 
+    const attribution = captureFirstTouchAttribution();
     const compiledData = {
       nome: name,
       whatsapp: whatsapp,
@@ -103,7 +112,16 @@ export default function BetaSignupModal({
       preventiviMensili: monthlyEstimates,
       metodiAttuali: selectedTools.map((t) => (t === "Altro" ? `Altro (${customTool})` : t)),
       dispositivoPrincipale: primaryDevice,
+      comeConosciuto: comeConosciuto.trim(),
       accettaPrivacy: acceptPrivacy,
+      utmSource: attribution.utmSource,
+      utmMedium: attribution.utmMedium,
+      utmCampaign: attribution.utmCampaign,
+      utmContent: attribution.utmContent,
+      utmTerm: attribution.utmTerm,
+      referrer: attribution.referrer,
+      landingPage: attribution.landingPage,
+      pageUrl: typeof window !== "undefined" ? window.location.href : "",
     };
 
     try {
@@ -117,6 +135,15 @@ export default function BetaSignupModal({
 
       if (!response.ok) {
         throw new Error("Errore nell'invio dell'iscrizione");
+      }
+
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "beta_signup", {
+          professione: compiledData.professione,
+          dispositivo: compiledData.dispositivoPrincipale,
+          utm_source: attribution.utmSource || "(none)",
+          utm_medium: attribution.utmMedium || "(none)",
+        });
       }
 
       setSuccess(true);
@@ -431,6 +458,20 @@ export default function BetaSignupModal({
                             );
                           })}
                         </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                          Come ci hai conosciuto? <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          required
+                          rows={3}
+                          value={comeConosciuto}
+                          onChange={(e) => setComeConosciuto(e.target.value)}
+                          placeholder="Es. Instagram, un collega, Google, ChatGPT..."
+                          className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm placeholder-slate-400 focus:border-teal-brand focus:outline-none focus:ring-2 focus:ring-teal-brand/10 transition-all resize-y min-h-[80px]"
+                        />
                       </div>
 
                       <div className="pt-2">
